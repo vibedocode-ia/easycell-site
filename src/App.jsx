@@ -180,16 +180,29 @@ export default function App() {
 
           {/* Container do Vídeo */}
           <div className="glass-panel rounded-3xl border border-cyan-400/50 p-2.5 sm:p-4 shadow-2xl relative overflow-hidden group">
+            {/* VIDEO DESKTOP (>= 768px): horizontal 16:9 */}
             <video
               autoPlay
               loop
               muted
               playsInline
-              className="w-full h-auto max-h-[580px] object-cover rounded-2xl shadow-2xl mx-auto"
+              preload="metadata"
+              className="hidden md:block w-full h-auto max-h-[580px] object-cover rounded-2xl shadow-2xl mx-auto"
             >
               <source src="/hero-video.mp4" type="video/mp4" />
-              {/* Fallback de imagem caso o navegador bloqueie vídeo */}
-              <img src="/images/hero-bancada-futurista.png" alt="EasyCell Bancada Técnica" className="w-full h-auto rounded-2xl" />
+            </video>
+
+            {/* VIDEO MOBILE (< 768px): vertical 9:16 */}
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="metadata"
+              className="block md:hidden w-full h-auto max-h-[70vh] object-cover rounded-2xl shadow-2xl mx-auto"
+            >
+              <source src="/hero-video-mobile.mp4" type="video/mp4" />
+              <img src="/images/hero-bancada-futurista.png" alt="EasyCell Bancada Tecnica" className="w-full h-auto rounded-2xl" />
             </video>
           </div>
         </div>
