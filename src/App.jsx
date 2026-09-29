@@ -184,7 +184,7 @@ export default function App() {
               {/* Card com a imagem hiper-realista gerada */}
               <div className="glass-panel rounded-3xl border border-cyan-400/50 p-2.5 shadow-2xl relative scanline-effect overflow-hidden">
                 <img 
-                  src="/images/hero-bancada-futurista.webp" 
+                  src="/images/hero-bancada-futurista.png" 
                   alt="EasyCell Bancada Inteligente Futurista"
                   className="w-full h-auto rounded-2xl object-cover shadow-2xl group-hover:scale-105 transition-transform duration-500"
                 />
