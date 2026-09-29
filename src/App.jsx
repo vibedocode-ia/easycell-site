@@ -13,10 +13,8 @@ import {
   Camera, 
   Fingerprint,
   Sliders,
-  Cpu,
   Check,
-  Flame,
-  ChevronDown
+  Flame
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import AOS from 'aos';
@@ -119,12 +117,12 @@ export default function App() {
         </div>
       </header>
 
-      {/* HERO SECTION DE ALTO IMPACTO COM RENDER VISUAL */}
+      {/* HERO SECTION DE ALTO IMPACTO COM RENDER GERADO POR IA */}
       <section className="relative pt-16 pb-28 px-6 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
           {/* Coluna Texto / Copy */}
-          <div className="lg:col-span-7 space-y-6 text-center lg:text-left" data-aos="fade-right">
+          <div className="lg:col-span-6 space-y-6 text-center lg:text-left" data-aos="fade-right">
             <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-cyan-500/40 bg-cyan-950/40 text-cyan-300 text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-inner">
               <Flame className="w-4 h-4 text-cyan-400 animate-bounce" />
               <span>O Novo Padrão para Assistência de Smartphone</span>
@@ -137,7 +135,7 @@ export default function App() {
               </span>
             </h1>
 
-            <p className="text-lg sm:text-xl text-slate-300 leading-relaxed max-w-2xl mx-auto lg:mx-0 font-normal">
+            <p className="text-lg sm:text-xl text-slate-300 leading-relaxed max-w-xl mx-auto lg:mx-0 font-normal">
               Elimine para sempre o cliente que jura que o celular não tinha riscos ou que a câmera funcionava antes. <strong>Checklist fotográfico</strong> na entrada, <strong>senha de padrão na tela</strong> e <strong>rastreio automático no WhatsApp</strong>.
             </p>
 
@@ -177,76 +175,35 @@ export default function App() {
             </div>
           </div>
 
-          {/* Coluna Visual: O Mockup Cyber do Smartphone Desmontado com a Bancada */}
-          <div className="lg:col-span-5 relative flex justify-center" data-aos="fade-left">
-            <div className="relative w-full max-w-md animate-float-slow">
-              {/* Glow traseiro do aparelho */}
+          {/* Coluna Visual: RENDER 3D IMPACTANTE COM BANNER DE LAUDO */}
+          <div className="lg:col-span-6 relative flex justify-center" data-aos="fade-left">
+            <div className="relative w-full max-w-lg group animate-float-slow">
+              {/* Glow traseiro */}
               <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/40 via-blue-600/30 to-purple-600/20 blur-3xl rounded-3xl -z-10" />
 
-              {/* Card Smartphone Principal */}
-              <div className="glass-panel rounded-[2.5rem] border border-cyan-400/40 p-4 shadow-2xl relative scanline-effect">
-                {/* Moldura do Celular */}
-                <div className="bg-[#070c18] rounded-[2.2rem] border border-slate-700/60 p-5 space-y-5 text-white">
-                  {/* Speaker & Notch */}
-                  <div className="flex justify-between items-center px-4 pt-1 text-[11px] text-slate-400 font-mono">
-                    <span>09:41</span>
-                    <div className="w-20 h-4 bg-slate-900 rounded-full border border-slate-700/40 flex items-center justify-center">
-                      <div className="w-2.5 h-2.5 rounded-full bg-cyan-400/70" />
-                    </div>
-                    <span className="text-cyan-400 flex items-center gap-1">5G ●</span>
-                  </div>
-
-                  {/* Header da OS no Celular */}
-                  <div className="bg-slate-900/90 rounded-2xl p-3.5 border border-slate-800 flex items-center justify-between">
-                    <div>
-                      <span className="text-[10px] text-cyan-400 font-mono font-bold block">O.S. #8920 • ENTRADA BLINDADA</span>
-                      <h4 className="text-sm font-bold text-white">iPhone 14 Pro Max • 256GB</h4>
-                    </div>
-                    <span className="px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 text-[10px] font-bold border border-cyan-500/30">Na Bancada</span>
-                  </div>
-
-                  {/* Mini Grid de Fotos do Laudo */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-400 flex items-center gap-1"><Camera className="w-3.5 h-3.5 text-cyan-400" /> Laudo Fotográfico (4 Ângulos)</span>
-                      <span className="text-emerald-400 font-bold text-[11px]">Validação Jurídica ✓</span>
-                    </div>
-                    <div className="grid grid-cols-4 gap-2">
-                      {[
-                        { label: 'Frontal', img: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=150&auto=format&fit=crop&q=80' },
-                        { label: 'Traseira', img: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=150&auto=format&fit=crop&q=80' },
-                        { label: 'Lateral D', img: 'https://images.unsplash.com/photo-1580910051074-3eb694886505?w=150&auto=format&fit=crop&q=80' },
-                        { label: 'Conector', img: 'https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=150&auto=format&fit=crop&q=80' }
-                      ].map((item, idx) => (
-                        <div key={idx} className="relative rounded-xl overflow-hidden border border-slate-700/80 bg-slate-900 aspect-square group">
-                          <img src={item.img} alt={item.label} className="w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform duration-300" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-1">
-                            <span className="text-[9px] text-cyan-300 font-mono leading-none">{item.label}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Assinatura Digital do Cliente */}
-                  <div className="bg-slate-900/60 rounded-xl p-3 border border-slate-800 flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                      <span className="text-slate-300 text-[11px]">Assinatura na Tela Confirmada</span>
-                    </div>
-                    <span className="font-mono text-[10px] text-slate-500">29/09 14:22</span>
-                  </div>
+              {/* Card com a imagem hiper-realista gerada */}
+              <div className="glass-panel rounded-3xl border border-cyan-400/50 p-2.5 shadow-2xl relative scanline-effect overflow-hidden">
+                <img 
+                  src="/images/hero-bancada-futurista.webp" 
+                  alt="EasyCell Bancada Inteligente Futurista"
+                  className="w-full h-auto rounded-2xl object-cover shadow-2xl group-hover:scale-105 transition-transform duration-500"
+                />
+                
+                {/* Overlay com badge de status do sistema */}
+                <div className="absolute top-6 left-6 glass-panel px-4 py-2 rounded-xl border border-cyan-400/40 flex items-center gap-2.5 shadow-xl">
+                  <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
+                  <span className="text-xs font-bold text-white font-mono uppercase tracking-wider">Escaneamento de O.S. Ativo</span>
                 </div>
-              </div>
 
-              {/* Floating Badge Flutuante */}
-              <div className="absolute -bottom-6 -right-6 glass-panel rounded-2xl p-4 border border-cyan-500/50 shadow-2xl flex items-center gap-3 backdrop-blur-2xl">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-slate-950 font-bold">
-                  <Zap className="w-5 h-5 fill-slate-950" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-white">Zero Reclamações</div>
-                  <div className="text-[10px] text-cyan-300">Tudo comprovado com foto</div>
+                {/* Badge Flutuante Inferior */}
+                <div className="absolute bottom-6 right-6 glass-panel px-5 py-3 rounded-2xl border border-emerald-400/50 flex items-center gap-3 shadow-2xl backdrop-blur-xl">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-400 font-bold">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-white">Laudo Fotográfico Blindado</div>
+                    <div className="text-[10px] text-emerald-300 font-mono">Autenticado com validade jurídica</div>
+                  </div>
                 </div>
               </div>
             </div>
