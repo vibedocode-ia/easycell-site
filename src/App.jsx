@@ -112,13 +112,13 @@ export default function App() {
       {/* HERO SECTION CINEMATOGRÁFICO TOTALMENTE COM O VÍDEO NO FUNDO */}
       <section className="relative min-h-[92vh] flex items-center justify-center px-6 overflow-hidden">
         {/* VÍDEO FULL BACKGROUND DE PONTA A PONTA */}
-        <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none -z-10">
+        <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
           <video
             autoPlay
             loop
             muted
             playsInline
-            className="w-full h-full object-cover object-center opacity-65 scale-105 filter brightness-90 contrast-110"
+            className="w-full h-full object-cover object-center opacity-90 scale-105 filter brightness-90 contrast-110"
           >
             <source src="/hero-video.mp4" type="video/mp4" />
           </video>
