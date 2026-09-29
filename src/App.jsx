@@ -117,98 +117,80 @@ export default function App() {
         </div>
       </header>
 
-      {/* HERO SECTION DE ALTO IMPACTO COM RENDER GERADO POR IA */}
-      <section className="relative pt-16 pb-28 px-6 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
-          {/* Coluna Texto / Copy */}
-          <div className="lg:col-span-6 space-y-6 text-center lg:text-left" data-aos="fade-right">
-            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-cyan-500/40 bg-cyan-950/40 text-cyan-300 text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-inner">
-              <Flame className="w-4 h-4 text-cyan-400 animate-bounce" />
-              <span>O Novo Padrão para Assistência de Smartphone</span>
-            </div>
-
-            <h1 className="text-5xl sm:text-6xl md:text-7xl font-black text-white tracking-tight leading-[1.08]">
-              Sua bancada veloz.<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-300 glow-text-cyan">
-                Seu balcão 100% blindado.
-              </span>
-            </h1>
-
-            <p className="text-lg sm:text-xl text-slate-300 leading-relaxed max-w-xl mx-auto lg:mx-0 font-normal">
-              Elimine para sempre o cliente que jura que o celular não tinha riscos ou que a câmera funcionava antes. <strong>Checklist fotográfico</strong> na entrada, <strong>senha de padrão na tela</strong> e <strong>rastreio automático no WhatsApp</strong>.
-            </p>
-
-            {/* Formulário VIP Hero */}
-            <div id="vip" className="pt-3 max-w-xl mx-auto lg:mx-0">
-              {!isSubmitted ? (
-                <form onSubmit={triggerConfetti} className="p-2.5 rounded-2xl glass-panel border border-cyan-500/50 shadow-2xl flex flex-col sm:flex-row gap-2 relative group hover:border-cyan-400 transition-all">
-                  <input
-                    type="text"
-                    required
-                    value={whatsappNumber}
-                    onChange={(e) => setWhatsappNumber(e.target.value)}
-                    placeholder="Seu WhatsApp com DDD (Ex: 21 99999-9999)"
-                    className="flex-1 bg-slate-950/80 text-white placeholder-slate-500 px-5 py-4 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 border border-slate-700/60 font-medium"
-                  />
-                  <button
-                    type="submit"
-                    className="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-sm transition-all shadow-xl shadow-cyan-500/30 flex items-center justify-center gap-2 whitespace-nowrap active:scale-95 cursor-pointer"
-                  >
-                    Garantir Vaga VIP
-                    <Zap className="w-4 h-4 fill-slate-950" />
-                  </button>
-                </form>
-              ) : (
-                <div className="p-6 rounded-2xl glass-panel border border-emerald-500/60 bg-emerald-950/30 text-emerald-300 text-center space-y-2 animate-fade-in">
-                  <CheckCircle2 className="w-10 h-10 mx-auto text-emerald-400" />
-                  <h4 className="font-bold text-lg text-white">Inscrição VIP Confirmada!</h4>
-                  <p className="text-xs text-slate-300">Número registrado ({whatsappNumber}). Você terá condição de fundador vitalícia no lançamento.</p>
-                </div>
-              )}
-
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-5 mt-4 text-xs font-medium text-slate-400">
-                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cyan-400 font-bold" /> Sem fidelidade</span>
-                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cyan-400 font-bold" /> 50% OFF vitalício</span>
-                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cyan-400 font-bold" /> Acesso prioritário</span>
-              </div>
-            </div>
+      {/* HERO SECTION PANORÂMICO DE ALTO IMPACTO COM VÍDEO CENTRALIZADO */}
+      <section className="relative pt-12 pb-24 px-6 max-w-6xl mx-auto text-center">
+        {/* Cabeçalho do Hero */}
+        <div className="space-y-6 max-w-4xl mx-auto mb-10" data-aos="fade-up">
+          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-cyan-500/40 bg-cyan-950/40 text-cyan-300 text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-inner">
+            <Flame className="w-4 h-4 text-cyan-400 animate-bounce" />
+            <span>O Novo Padrão para Assistência de Smartphone</span>
           </div>
 
-          {/* Coluna Visual: RENDER 3D IMPACTANTE COM BANNER DE LAUDO */}
-          <div className="lg:col-span-6 relative flex justify-center" data-aos="fade-left">
-            <div className="relative w-full max-w-lg group animate-float-slow">
-              {/* Glow traseiro */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/40 via-blue-600/30 to-purple-600/20 blur-3xl rounded-3xl -z-10" />
+          <h1 className="text-5xl sm:text-6xl md:text-7xl font-black text-white tracking-tight leading-[1.08]">
+            Sua bancada veloz.<br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-300 glow-text-cyan">
+              Seu balcão 100% blindado.
+            </span>
+          </h1>
 
-              {/* Card com a imagem hiper-realista gerada */}
-              <div className="glass-panel rounded-3xl border border-cyan-400/50 p-2.5 shadow-2xl relative scanline-effect overflow-hidden">
-                <img 
-                  src="/images/hero-bancada-futurista.png" 
-                  alt="EasyCell Bancada Inteligente Futurista"
-                  className="w-full h-auto rounded-2xl object-cover shadow-2xl group-hover:scale-105 transition-transform duration-500"
+          <p className="text-lg sm:text-xl text-slate-300 leading-relaxed max-w-2xl mx-auto font-normal">
+            Elimine para sempre o cliente que jura que o celular não tinha riscos antes. <strong>Checklist fotográfico</strong> na entrada, <strong>senha de padrão na tela</strong> e <strong>rastreio automático no WhatsApp</strong>.
+          </p>
+
+          {/* Formulário VIP Centralizado */}
+          <div id="vip" className="pt-2 max-w-lg mx-auto">
+            {!isSubmitted ? (
+              <form onSubmit={triggerConfetti} className="p-2 rounded-2xl glass-panel border border-cyan-500/50 shadow-2xl flex flex-col sm:flex-row gap-2 relative group hover:border-cyan-400 transition-all">
+                <input
+                  type="text"
+                  required
+                  value={whatsappNumber}
+                  onChange={(e) => setWhatsappNumber(e.target.value)}
+                  placeholder="Seu WhatsApp com DDD (Ex: 21 99999-9999)"
+                  className="flex-1 bg-slate-950/80 text-white placeholder-slate-500 px-5 py-4 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 border border-slate-700/60 font-medium"
                 />
-                
-                {/* Overlay com badge de status do sistema */}
-                <div className="absolute top-6 left-6 glass-panel px-4 py-2 rounded-xl border border-cyan-400/40 flex items-center gap-2.5 shadow-xl">
-                  <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
-                  <span className="text-xs font-bold text-white font-mono uppercase tracking-wider">Escaneamento de O.S. Ativo</span>
-                </div>
-
-                {/* Badge Flutuante Inferior */}
-                <div className="absolute bottom-6 right-6 glass-panel px-5 py-3 rounded-2xl border border-emerald-400/50 flex items-center gap-3 shadow-2xl backdrop-blur-xl">
-                  <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-400 font-bold">
-                    <ShieldCheck className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-white">Laudo Fotográfico Blindado</div>
-                    <div className="text-[10px] text-emerald-300 font-mono">Autenticado com validade jurídica</div>
-                  </div>
-                </div>
+                <button
+                  type="submit"
+                  className="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-sm transition-all shadow-xl shadow-cyan-500/30 flex items-center justify-center gap-2 whitespace-nowrap active:scale-95 cursor-pointer"
+                >
+                  Garantir Vaga VIP
+                  <Zap className="w-4 h-4 fill-slate-950" />
+                </button>
+              </form>
+            ) : (
+              <div className="p-6 rounded-2xl glass-panel border border-emerald-500/60 bg-emerald-950/30 text-emerald-300 text-center space-y-2 animate-fade-in">
+                <CheckCircle2 className="w-10 h-10 mx-auto text-emerald-400" />
+                <h4 className="font-bold text-lg text-white">Inscrição VIP Confirmada!</h4>
+                <p className="text-xs text-slate-300">Número registrado ({whatsappNumber}). Você terá condição de fundador vitalícia no lançamento.</p>
               </div>
+            )}
+
+            <div className="flex flex-wrap items-center justify-center gap-6 mt-4 text-xs font-medium text-slate-400">
+              <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cyan-400 font-bold" /> Sem fidelidade</span>
+              <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cyan-400 font-bold" /> 50% OFF vitalício</span>
+              <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cyan-400 font-bold" /> Acesso prioritário</span>
             </div>
           </div>
+        </div>
 
+        {/* VÍDEO CINEMATOGRÁFICO PANORÂMICO CENTRALIZADO (SEM NADA NA FRENTE) */}
+        <div className="relative max-w-5xl mx-auto mt-12" data-aos="zoom-in" data-aos-delay="150">
+          {/* Glow de Iluminação Traseira */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/30 via-blue-600/25 to-purple-600/20 blur-3xl rounded-3xl -z-10" />
+
+          {/* Moldura Glass com o Vídeo em Loop */}
+          <div className="glass-panel rounded-3xl border border-cyan-400/50 p-2 sm:p-3 shadow-[0_20px_70px_rgba(6,182,212,0.25)] relative scanline-effect overflow-hidden group">
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-auto rounded-2xl object-cover shadow-2xl"
+            >
+              <source src="/hero-video.mp4" type="video/mp4" />
+              Seu navegador não suporta tags de vídeo.
+            </video>
+          </div>
         </div>
       </section>
 
