@@ -117,10 +117,10 @@ export default function App() {
         </div>
       </header>
 
-      {/* HERO SECTION DE ALTO IMPACTO COM LAYOUT PANORÂMICO E VÍDEO CENTRAL DOMINANTE */}
-      <section className="relative pt-16 pb-24 px-6 max-w-7xl mx-auto text-center">
-        {/* Tagline e Título Centralizado */}
-        <div className="max-w-4xl mx-auto space-y-6" data-aos="fade-up">
+      {/* HERO SECTION PANORÂMICO DE ALTO IMPACTO COM VÍDEO CENTRALIZADO */}
+      <section className="relative pt-12 pb-24 px-6 max-w-6xl mx-auto text-center">
+        {/* Cabeçalho do Hero */}
+        <div className="space-y-6 max-w-4xl mx-auto mb-10" data-aos="fade-up">
           <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-cyan-500/40 bg-cyan-950/40 text-cyan-300 text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-inner">
             <Flame className="w-4 h-4 text-cyan-400 animate-bounce" />
             <span>O Novo Padrão para Assistência de Smartphone</span>
@@ -134,13 +134,13 @@ export default function App() {
           </h1>
 
           <p className="text-lg sm:text-xl text-slate-300 leading-relaxed max-w-2xl mx-auto font-normal">
-            Elimine para sempre o cliente que jura que o celular não tinha riscos ou que a câmera funcionava antes. <strong>Checklist fotográfico</strong> na entrada, <strong>senha de padrão na tela</strong> e <strong>rastreio automático no WhatsApp</strong>.
+            Elimine para sempre o cliente que jura que o celular não tinha riscos antes. <strong>Checklist fotográfico</strong> na entrada, <strong>senha de padrão na tela</strong> e <strong>rastreio automático no WhatsApp</strong>.
           </p>
 
           {/* Formulário VIP Centralizado */}
-          <div id="vip" className="pt-2 max-w-xl mx-auto">
+          <div id="vip" className="pt-2 max-w-lg mx-auto">
             {!isSubmitted ? (
-              <form onSubmit={triggerConfetti} className="p-2.5 rounded-2xl glass-panel border border-cyan-500/50 shadow-2xl flex flex-col sm:flex-row gap-2 relative group hover:border-cyan-400 transition-all">
+              <form onSubmit={triggerConfetti} className="p-2 rounded-2xl glass-panel border border-cyan-500/50 shadow-2xl flex flex-col sm:flex-row gap-2 relative group hover:border-cyan-400 transition-all">
                 <input
                   type="text"
                   required
@@ -165,7 +165,7 @@ export default function App() {
               </div>
             )}
 
-            <div className="flex flex-wrap items-center justify-center gap-5 mt-4 text-xs font-medium text-slate-400">
+            <div className="flex flex-wrap items-center justify-center gap-6 mt-4 text-xs font-medium text-slate-400">
               <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cyan-400 font-bold" /> Sem fidelidade</span>
               <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cyan-400 font-bold" /> 50% OFF vitalício</span>
               <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cyan-400 font-bold" /> Acesso prioritário</span>
@@ -173,36 +173,22 @@ export default function App() {
           </div>
         </div>
 
-        {/* VÍDEO DO CELULAR ABRINDO - VISÃO PANORÂMICA E SEM POLUIÇÃO NA FRENTE */}
-        <div className="mt-16 max-w-5xl mx-auto relative" data-aos="zoom-in" data-aos-delay="150">
-          {/* Glow Traseiro */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/30 via-blue-600/25 to-purple-600/20 blur-[100px] rounded-3xl -z-10" />
+        {/* VÍDEO CINEMATOGRÁFICO PANORÂMICO CENTRALIZADO (SEM NADA NA FRENTE) */}
+        <div className="relative max-w-5xl mx-auto mt-12" data-aos="zoom-in" data-aos-delay="150">
+          {/* Glow de Iluminação Traseira */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/30 via-blue-600/25 to-purple-600/20 blur-3xl rounded-3xl -z-10" />
 
-          {/* Container do Vídeo */}
-          <div className="glass-panel rounded-3xl border border-cyan-400/50 p-2.5 sm:p-4 shadow-2xl relative overflow-hidden group">
-            {/* VIDEO DESKTOP (>= 768px): horizontal 16:9 */}
+          {/* Moldura Glass com o Vídeo em Loop */}
+          <div className="glass-panel rounded-3xl border border-cyan-400/50 p-2 sm:p-3 shadow-[0_20px_70px_rgba(6,182,212,0.25)] relative scanline-effect overflow-hidden group">
             <video
               autoPlay
               loop
               muted
               playsInline
-              preload="metadata"
-              className="hidden md:block w-full h-auto max-h-[580px] object-cover rounded-2xl shadow-2xl mx-auto"
+              className="w-full h-auto rounded-2xl object-cover shadow-2xl"
             >
               <source src="/hero-video.mp4" type="video/mp4" />
-            </video>
-
-            {/* VIDEO MOBILE (< 768px): vertical 9:16 */}
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="metadata"
-              className="block md:hidden w-full h-auto max-h-[70vh] object-cover rounded-2xl shadow-2xl mx-auto"
-            >
-              <source src="/hero-video-mobile.mp4" type="video/mp4" />
-              <img src="/images/hero-bancada-futurista.png" alt="EasyCell Bancada Tecnica" className="w-full h-auto rounded-2xl" />
+              Seu navegador não suporta tags de vídeo.
             </video>
           </div>
         </div>
