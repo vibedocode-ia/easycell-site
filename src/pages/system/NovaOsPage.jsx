@@ -100,6 +100,7 @@ export default function NovaOsPage() {
       valorPecas: 0,
       valorAdiantamento: valorAdiantamento * 100,
       termoAssinado: true,
+      hashTracking: `tr_${Date.now()}`
     });
 
     setModalConcluido(novaOs);
@@ -489,7 +490,7 @@ export default function NovaOsPage() {
                 <span>Imprimir Térmica</span>
               </button>
               <a
-                href={`https://wa.me/55${modalConcluido.clienteWhatsapp.replace(/\D/g, '')}?text=Olá%20${encodeURIComponent(modalConcluido.clienteNome)},%20sua%20O.S.%20%23${modalConcluido.numeroOs}%20do%20${encodeURIComponent(modalConcluido.aparelhoModelo)}%20foi%20aberta%20com%20sucesso%20na%20EasyCell!`}
+                href={`https://wa.me/55${modalConcluido.clienteWhatsapp.replace(/\D/g, '')}?text=Olá%20${encodeURIComponent(modalConcluido.clienteNome)}!%20Sua%20O.S.%20%23${modalConcluido.numeroOs}%20do%20${encodeURIComponent(modalConcluido.aparelhoModelo)}%20foi%20aberta%20na%20EasyCell.%20Acompanhe%20o%20laudo%20de%20fotos%20e%20status%20em%20tempo%20real:%20https://easycell.vibedocode.pro/track/${modalConcluido.hashTracking || 'tr_' + modalConcluido.numeroOs}`}
                 target="_blank"
                 rel="noreferrer"
                 className="py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2"

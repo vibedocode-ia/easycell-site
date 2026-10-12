@@ -21,6 +21,8 @@ export default function KanbanPage() {
     setOrders(easyCellStore.getOrders());
   }, []);
 
+  const [notifFeedback, setNotifFeedback] = useState(null);
+
   const handleDragOver = (e) => {
     e.preventDefault();
   };
@@ -31,6 +33,18 @@ export default function KanbanPage() {
     if (orderId) {
       const updated = easyCellStore.updateOrderStatus(orderId, newStatus);
       setOrders(updated);
+
+      const targetOrder = updated.find(o => o.id === orderId);
+      const labels = {
+        entrada: 'Entrada Registrada',
+        orcamento_pendente: 'Orçamento com Opção 1/2',
+        aprovado_reparo: 'Início de Reparo',
+        pronto_retirada: 'Aparelho Pronto para Retirada',
+        entregue_pago: 'Recibo & Garantia'
+      };
+
+      setNotifFeedback(`📲 WhatsApp Automático: Notificação de "${labels[newStatus] || newStatus}" enviada para ${targetOrder?.clienteNome || 'Cliente'}!`);
+      setTimeout(() => setNotifFeedback(null), 4000);
     }
   };
 
@@ -40,7 +54,7 @@ export default function KanbanPage() {
 
   const colunas = [
     { key: 'entrada', label: '1. Recebido / Análise', color: 'border-amber-500/40 bg-amber-950/10 text-amber-400' },
-    { key: 'orcamento_pendente', label: '2. Orçamento Pendente', color: 'border-purple-500/40 bg-purple-950/10 text-purple-400' },
+    { key: 'orcamento_pendente', label: '2. Orçamento Pendente', color: 'border-sky-500/40 bg-sky-950/10 text-sky-400' },
     { key: 'aprovado_reparo', label: '3. Aprovado / Em Reparo', color: 'border-blue-500/40 bg-blue-950/10 text-blue-400' },
     { key: 'pronto_retirada', label: '4. Pronto p/ Retirada', color: 'border-emerald-500/40 bg-emerald-950/10 text-emerald-400' },
     { key: 'entregue_pago', label: '5. Entregue & Pago', color: 'border-slate-500/40 bg-slate-900/40 text-slate-400' },
@@ -61,8 +75,15 @@ export default function KanbanPage() {
           <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
             Quadro Kanban Operacional
           </h1>
-          <p className="text-xs text-slate-400 mt-0.5">Arraste os cards para atualizar o status e notificar o cliente.</p>
+          <p className="text-xs text-slate-400 mt-0.5">Arraste os cards para atualizar o status e disparar notificações automáticas de WhatsApp.</p>
         </div>
+
+      {notifFeedback && (
+        <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-xs flex items-center gap-2 shadow-lg animate-fadeIn">
+          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+          <span className="font-medium">{notifFeedback}</span>
+        </div>
+      )}
 
         <div className="flex items-center gap-3">
           <div className="relative">

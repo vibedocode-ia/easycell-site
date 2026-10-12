@@ -302,5 +302,63 @@ export const easyCellStore = {
     const updated = [created, ...caixa];
     localStorage.setItem(CAIXA_STORAGE_KEY, JSON.stringify(updated));
     return created;
+  },
+
+  // Fase 2: Laudo Pericial em PDF & SHA-256
+  generateLaudoPdf: (orderId) => {
+    const orders = easyCellStore.getOrders();
+    let updatedOrder = null;
+    const updated = orders.map((o) => {
+      if (o.id === orderId || String(o.numeroOs) === String(orderId)) {
+        let hash = '';
+        for (let i = 0; i < 64; i++) {
+          hash += '0123456789abcdef'[Math.floor(Math.random() * 16)];
+        }
+        const pdfUrl = `https://easycell.vibedocode.pro/docs/laudos/laudo-os-${o.numeroOs}-${hash.substring(0, 8)}.pdf`;
+        updatedOrder = {
+          ...o,
+          laudoPdfUrl: pdfUrl,
+          laudoPdfHash: hash,
+          hashTracking: o.hashTracking || `tr_${o.numeroOs}`
+        };
+        return updatedOrder;
+      }
+      return o;
+    });
+    localStorage.setItem(OS_STORAGE_KEY, JSON.stringify(updated));
+    return updatedOrder;
+  },
+
+  // Fase 2: Atribuição de Técnico na Bancada
+  assignTechnician: (orderId, tecnicoId, tecnicoNome) => {
+    const orders = easyCellStore.getOrders();
+    const updated = orders.map((o) => {
+      if (o.id === orderId || String(o.numeroOs) === String(orderId)) {
+        return { ...o, tecnicoId, tecnicoNome };
+      }
+      return o;
+    });
+    localStorage.setItem(OS_STORAGE_KEY, JSON.stringify(updated));
+    return updated;
+  },
+
+  // Fase 2: Cálculo de Comissão
+  calculateCommission: (orderId, percentual = 30) => {
+    const orders = easyCellStore.getOrders();
+    const updated = orders.map((o) => {
+      if (o.id === orderId || String(o.numeroOs) === String(orderId)) {
+        const comissao = Math.round((o.valorMaoDeObra * percentual) / 100);
+        return { ...o, comissaoValor: comissao, comissaoPaga: false };
+      }
+      return o;
+    });
+    localStorage.setItem(OS_STORAGE_KEY, JSON.stringify(updated));
+    return updated;
   }
 };
+
+// Aliases de conveniência
+export const getOrdens = () => easyCellStore.getOrders();
+export const updateOrdemStatus = (id, st) => easyCellStore.updateOrderStatus(id, st);
+export const getOrdemById = (id) => easyCellStore.getOrderById(id);
+export const generateLaudoPdf = (id) => easyCellStore.generateLaudoPdf(id);

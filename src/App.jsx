@@ -13,6 +13,10 @@ import KanbanPage from './pages/system/KanbanPage';
 import DetalhesOsPage from './pages/system/DetalhesOsPage';
 import EstoquePage from './pages/system/EstoquePage';
 import CaixaPage from './pages/system/CaixaPage';
+import TrackingPage from './pages/tracking/TrackingPage';
+import AutomacoesPage from './pages/system/AutomacoesPage';
+import TecnicosPage from './pages/system/TecnicosPage';
+import ConfiguracoesPage from './pages/system/ConfiguracoesPage';
 
 export default function App() {
   return (
@@ -25,6 +29,9 @@ export default function App() {
           {/* Rota Pública 2: Portal de Acesso Operacional */}
           <Route path="/admin" element={<LoginPage />} />
 
+          {/* Rota Pública 3: Portal do Cliente (Tracking de O.S. via WhatsApp) */}
+          <Route path="/track/:hash" element={<TrackingPage />} />
+
           {/* Rotas Protegidas do Sistema sob /system */}
           <Route path="/system" element={<ProtectedRoute />}>
             <Route element={<SystemLayout />}>
@@ -34,6 +41,9 @@ export default function App() {
               <Route path="os/:id" element={<DetalhesOsPage />} />
               <Route path="estoque" element={<EstoquePage />} />
               <Route path="caixa" element={<CaixaPage />} />
+              <Route path="automacoes" element={<AutomacoesPage />} />
+              <Route path="tecnicos" element={<TecnicosPage />} />
+              <Route path="configuracoes" element={<ConfiguracoesPage />} />
             </Route>
           </Route>
 

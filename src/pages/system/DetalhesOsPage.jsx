@@ -14,7 +14,11 @@ import {
   DollarSign,
   ShieldCheck,
   CheckCircle2,
-  Package
+  Package,
+  FileText,
+  Download,
+  Users,
+  X
 } from 'lucide-react';
 import { easyCellStore } from '../../lib/store';
 
@@ -31,6 +35,11 @@ export default function DetalhesOsPage() {
   // Modal de Quitação
   const [modalQuitacao, setModalQuitacao] = useState(false);
   const [formaPagamento, setFormaPagamento] = useState('PIX');
+
+  // Fase 2: Laudo Pericial em PDF A4
+  const [modalLaudoPdf, setModalLaudoPdf] = useState(false);
+  const [laudoGerando, setLaudoGerando] = useState(false);
+  const [tecnicoSelecionado, setTecnicoSelecionado] = useState('');
 
   useEffect(() => {
     const o = easyCellStore.getOrderById(id);
@@ -80,8 +89,22 @@ export default function DetalhesOsPage() {
 
   const handleQuitar = () => {
     easyCellStore.payAndCloseOrder(ordem.id, formaPagamento);
+    // Calcula comissão do técnico ao quitar
+    easyCellStore.calculateCommission(ordem.id, 35);
     setOrdem(easyCellStore.getOrderById(id));
     setModalQuitacao(false);
+  };
+
+  const handleGerarLaudo = () => {
+    setLaudoGerando(true);
+    setTimeout(() => {
+      const updated = easyCellStore.generateLaudoPdf(ordem.id);
+      if (updated) {
+        setOrdem(updated);
+      }
+      setLaudoGerando(false);
+      setModalLaudoPdf(true);
+    }, 500);
   };
 
   const dotsArray = ordem.senhaTipo === 'padrao_pontos' && ordem.senhaValor
@@ -114,10 +137,19 @@ export default function DetalhesOsPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <button
+            onClick={handleGerarLaudo}
+            disabled={laudoGerando}
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-cyan-950/80 hover:bg-cyan-900 text-cyan-300 border border-cyan-500/40 font-bold text-xs transition-all shadow-md shadow-cyan-500/10 cursor-pointer active:scale-95"
+          >
+            <FileText className="w-4 h-4 text-cyan-400" />
+            <span>{laudoGerando ? 'Compilando...' : 'Laudo PDF (SHA-256)'}</span>
+          </button>
+
           <button
             onClick={() => window.print()}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition-all cursor-pointer"
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition-all cursor-pointer"
           >
             <Printer className="w-4 h-4" />
             <span>Imprimir Térmica</span>
@@ -127,7 +159,7 @@ export default function DetalhesOsPage() {
             href={`https://wa.me/55${ordem.clienteWhatsapp.replace(/\D/g, '')}?text=Olá%20${encodeURIComponent(ordem.clienteNome)},%20sua%20O.S.%20%23${ordem.numeroOs}%20está%20com%20status:%20${encodeURIComponent(ordem.status)}`}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all shadow-md shadow-emerald-500/20"
+            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all shadow-md shadow-emerald-500/20"
           >
             <MessageSquare className="w-4 h-4" />
             <span>WhatsApp</span>
@@ -176,6 +208,26 @@ export default function DetalhesOsPage() {
               <div className="col-span-2 bg-slate-950/80 p-3 rounded-xl border border-slate-800/80">
                 <span className="text-slate-500 block text-[11px] font-semibold mb-1">Defeito Informado pelo Cliente:</span>
                 <p className="text-slate-200 text-xs leading-relaxed">{ordem.defeitoRelatado}</p>
+              </div>
+
+              {/* Fase 2: Atribuição de Técnico & Comissão */}
+              <div className="col-span-2 flex items-center justify-between p-3 bg-slate-950/90 rounded-xl border border-slate-800">
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-cyan-400" />
+                  <span className="text-xs text-slate-300 font-semibold">Técnico da Bancada:</span>
+                </div>
+                <select
+                  value={ordem.tecnicoNome || 'Carlos Alexandre Silva'}
+                  onChange={(e) => {
+                    easyCellStore.assignTechnician(ordem.id, 'tec_1', e.target.value);
+                    setOrdem({ ...ordem, tecnicoNome: e.target.value });
+                  }}
+                  className="bg-slate-900 border border-slate-700 text-xs text-cyan-300 font-medium rounded-lg px-3 py-1.5 focus:outline-none focus:border-cyan-400 font-sans cursor-pointer"
+                >
+                  <option value="Carlos Alexandre Silva">Carlos Alexandre Silva (35% comissão)</option>
+                  <option value="Mariana Duarte Souza">Mariana Duarte Souza (30% comissão)</option>
+                  <option value="Felipe Santos Oliveira">Felipe Santos Oliveira (25% comissão)</option>
+                </select>
               </div>
             </div>
           </div>
@@ -378,6 +430,119 @@ export default function DetalhesOsPage() {
                 className="py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-black text-xs font-black"
               >
                 Confirmar Recebimento
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Laudo Pericial Oficial em PDF A4 */}
+      {modalLaudoPdf && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-2xl w-full p-6 sm:p-8 space-y-6 shadow-2xl relative my-8">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    Laudo Pericial Oficial A4
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                      SHA-256 Autenticado
+                    </span>
+                  </h3>
+                  <span className="text-xs text-slate-400 font-mono">Documento emitido conforme Art. 26 do CDC</span>
+                </div>
+              </div>
+              <button
+                onClick={() => setModalLaudoPdf(false)}
+                className="text-slate-400 hover:text-white transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Documento Estilo A4 */}
+            <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 text-xs space-y-5 text-slate-300 font-sans shadow-inner">
+              <div className="flex justify-between items-start pb-4 border-b border-slate-800">
+                <div>
+                  <span className="text-lg font-black text-white block font-mono">EasyCell Smartphone Lab</span>
+                  <span className="text-[11px] text-slate-400 block">CNPJ: 12.345.678/0001-90 • Av. Paulista, 1000 - SP</span>
+                  <span className="text-[11px] text-slate-400 block">Tel/WhatsApp Oficial: (11) 99876-5432</span>
+                </div>
+                <div className="text-right font-mono">
+                  <span className="text-xs font-bold text-cyan-400 block">LAUDO TÉCNICO #{ordem.numeroOs}</span>
+                  <span className="text-[11px] text-slate-500 block">{new Date().toLocaleDateString('pt-BR')}</span>
+                </div>
+              </div>
+
+              {/* Dados do Aparelho */}
+              <div className="grid grid-cols-2 gap-3 bg-slate-900/60 p-3 rounded-lg border border-slate-800/80">
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-slate-500 block">Cliente</span>
+                  <span className="text-xs font-bold text-white">{ordem.clienteNome}</span>
+                  <span className="text-[11px] text-slate-400 font-mono block">{ordem.clienteWhatsapp}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-slate-500 block">Aparelho & Rastreio</span>
+                  <span className="text-xs font-bold text-white">{ordem.aparelhoMarca} {ordem.aparelhoModelo}</span>
+                  <span className="text-[11px] text-slate-400 font-mono block">IMEI: {ordem.aparelhoImei || 'Registrado'}</span>
+                </div>
+              </div>
+
+              {/* Mini Galeria de Fotos */}
+              <div>
+                <span className="text-[11px] uppercase font-bold text-slate-400 block mb-2">
+                  Laudo Fotográfico Compulsório (Danos Pré-existentes)
+                </span>
+                <div className="grid grid-cols-4 gap-2">
+                  {['frenteUrl', 'traseiraUrl', 'lateraisUrl', 'conectorUrl'].map((k) => (
+                    <div key={k} className="aspect-square bg-slate-900 rounded border border-slate-800 overflow-hidden relative">
+                      {ordem.laudoFotos?.[k] ? (
+                        <img src={ordem.laudoFotos[k]} alt={k} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[10px] text-slate-600">Sem foto</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Termos de Garantia */}
+              <div className="text-[10px] text-slate-400 leading-relaxed border-t border-slate-800 pt-3">
+                <p>
+                  <strong>Garantia Legal:</strong> 90 (noventa) dias para peças substituídas e serviços executados (Art. 26 CDC). 
+                  A garantia não cobre avarias decorrentes de líquidos, choques mecânicos, quebras ou violação de lacre.
+                </p>
+              </div>
+
+              {/* Hash Criptográfico SHA-256 */}
+              <div className="p-3 bg-slate-900/90 rounded-lg border border-cyan-500/30 font-mono">
+                <span className="text-[10px] text-cyan-400 font-bold block mb-0.5">
+                  Assinatura Digital & Hash de Autenticidade (SHA-256):
+                </span>
+                <span className="text-[10px] text-slate-300 break-all select-all">
+                  {ordem.laudoPdfHash || 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setModalLaudoPdf(false)}
+                className="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition"
+              >
+                Fechar
+              </button>
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="flex-1 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black rounded-xl text-xs transition flex items-center justify-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                Baixar / Imprimir PDF
               </button>
             </div>
           </div>

@@ -68,12 +68,26 @@ export const ordensServico = pgTable('ordens_servico', {
   termoAssinado: boolean('termo_assinado').default(false).notNull(),
   assinaturaUrl: text('assinatura_url'),
   
+  // Fase 2: Tracking Seguro & Laudo Pericial em PDF
+  hashTracking: text('hash_tracking'), // Token alfanumérico público/seguro para /track/:hash
+  laudoPdfUrl: text('laudo_pdf_url'), // Link direto para o PDF gerado
+  laudoPdfHash: text('laudo_pdf_hash'), // Hash criptográfico SHA-256 do documento pericial
+  
+  // Fase 2: Aprovação Interativa e WhatsApp
+  aprovacaoCanal: text('aprovacao_canal'), // 'whatsapp_chat', 'web_link', 'balcao_manual'
+  aprovadoEm: timestamp('aprovado_em'),
+  duvidasRegistradas: boolean('duvidas_registradas').default(false).notNull(),
+  
   // Financeiro
   valorPecas: integer('valor_pecas').default(0).notNull(), // Centavos
   valorMaoDeObra: integer('valor_mao_de_obra').default(0).notNull(), // Centavos
   valorDesconto: integer('valor_desconto').default(0).notNull(),
   valorTotal: integer('valor_total').default(0).notNull(), // Centavos
   valorAdiantamento: integer('valor_adiantamento').default(0).notNull(),
+  
+  // Fase 2: Comissões de Bancada
+  comissaoValor: integer('comissao_valor').default(0).notNull(), // Centavos calculados
+  comissaoPaga: boolean('comissao_paga').default(false).notNull(),
   
   // Pagamento no Balcão
   formaPagamento: text('forma_pagamento'), // Dinheiro, PIX, Cartão
