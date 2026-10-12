@@ -12,6 +12,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { VERSION } from '../lib/version';
 
 export default function SystemSidebar() {
   const { user, logout } = useAuth();
@@ -103,6 +104,10 @@ export default function SystemSidebar() {
           <LogOut className="w-4 h-4" />
           <span>Sair da Sessão</span>
         </button>
+
+        <div className="mt-2 text-center text-[10px] text-slate-500 font-mono">
+          EasyCell <span className="text-cyan-400 opacity-60">{VERSION}</span>
+        </div>
       </div>
     </aside>
   );

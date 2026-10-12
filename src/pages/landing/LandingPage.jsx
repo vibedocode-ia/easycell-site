@@ -20,6 +20,7 @@ import {
 import confetti from 'canvas-confetti';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import { VERSION } from '../../lib/version';
 
 export default function LandingPage() {
   const [atendimentos, setAtendimentos] = useState(130);
@@ -93,6 +94,7 @@ export default function LandingPage() {
             <div className="flex flex-col">
               <span className="text-2xl font-black tracking-tight text-white flex items-center gap-1 font-mono">
                 Easy<span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 glow-text-cyan">Cell</span>
+                <span className="text-[10px] text-cyan-400/60 font-mono tracking-normal ml-1">({VERSION})</span>
               </span>
               <span className="text-[10px] uppercase font-bold tracking-widest text-cyan-400 -mt-1">Smart OS Bancada</span>
             </div>
@@ -417,7 +419,7 @@ export default function LandingPage() {
 
       {/* Rodapé */}
       <footer className="border-t border-slate-900 py-12 px-6 text-center text-xs text-slate-500 font-mono">
-        <p>© 2026 EasyCell • Uma tecnologia VibeDoCode. Todos os direitos reservados.</p>
+        <p>© 2026 EasyCell • Uma tecnologia VibeDoCode • <span className="text-cyan-400 opacity-60 font-mono">{VERSION}</span> • Todos os direitos reservados.</p>
       </footer>
     </div>
   );

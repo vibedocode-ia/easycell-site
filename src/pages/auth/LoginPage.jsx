@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Smartphone, Lock, Mail, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { VERSION } from '../../lib/version';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('admin@easycell.com.br');
@@ -50,6 +51,7 @@ export default function LoginPage() {
             <div className="flex flex-col text-left">
               <span className="text-2xl font-black tracking-tight text-white flex items-center gap-1 font-mono">
                 Easy<span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 glow-text-cyan">Cell</span>
+                <span className="text-[10px] text-cyan-400/60 font-mono tracking-normal ml-1">({VERSION})</span>
               </span>
               <span className="text-[10px] uppercase font-bold tracking-widest text-cyan-400 -mt-1">Smart OS Bancada</span>
             </div>
