@@ -126,97 +126,90 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* HERO SECTION DE ALTO IMPACTO */}
-      <section className="relative pt-12 pb-24 px-6 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+      {/* HERO SECTION CINEMATOGRÁFICO TOTALMENTE COM O VÍDEO NO FUNDO */}
+      <section className="relative min-h-[92vh] flex items-center justify-center px-6 overflow-hidden">
+        {/* VÍDEO FULL BACKGROUND RESPONSIVO NO FUNDO DO HERO (SEM BLOCO SEPARADO) */}
+        <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+          {/* Mobile: video vertical 9:16 cobrindo o fundo */}
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="block md:hidden w-full h-full object-cover object-center opacity-90 filter brightness-90 contrast-110"
+          >
+            <source src="/hero-video-mobile.mp4" type="video/mp4" />
+            <img src="/images/hero-bancada-futurista.png" alt="EasyCell Bancada Técnica" className="w-full h-full object-cover" />
+          </video>
+          {/* Desktop: video widescreen 16:9 cobrindo o fundo */}
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="hidden md:block w-full h-full object-cover object-center opacity-90 filter brightness-90 contrast-110"
+          >
+            <source src="/hero-video.mp4" type="video/mp4" />
+            <img src="/images/hero-bancada-futurista.png" alt="EasyCell Bancada Técnica" className="w-full h-full object-cover" />
+          </video>
           
-          {/* Coluna Texto / Copy */}
-          <div className="lg:col-span-7 space-y-6 text-center lg:text-left" data-aos="fade-right">
-            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-cyan-500/40 bg-cyan-950/40 text-cyan-300 text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-inner">
-              <Flame className="w-4 h-4 text-cyan-400 animate-bounce" />
-              <span>O Novo Padrão para Assistência Técnica</span>
-            </div>
+          {/* Gradientes de Fusão de Alta Fidelidade (para o texto se destacar sem perder a visão do vídeo) */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#030611] via-[#030611]/40 to-[#030611]/85" />
+          <div className="absolute inset-0 bg-radial-gradient from-transparent via-[#030611]/30 to-[#030611]" />
+        </div>
 
-            <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight leading-[1.08]">
-              Sua bancada veloz.<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-300 glow-text-cyan">
-                Seu balcão 100% blindado.
-              </span>
-            </h1>
-
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl mx-auto lg:mx-0 font-normal">
-              Elimine para sempre o cliente que jura que o celular não tinha riscos ou que a câmera funcionava antes. <strong>Checklist fotográfico na entrada</strong>, <strong>senha de padrão na tela</strong> e <strong>rastreio automático no WhatsApp</strong>.
-            </p>
-
-            {/* Formulário VIP Hero */}
-            <div id="vip" className="pt-2 max-w-xl mx-auto lg:mx-0">
-              {!isSubmitted ? (
-                <form onSubmit={triggerConfetti} className="p-2 rounded-2xl glass-panel border border-cyan-500/50 shadow-2xl flex flex-col sm:flex-row gap-2 relative group hover:border-cyan-400 transition-all">
-                  <input
-                    type="text"
-                    required
-                    value={whatsappNumber}
-                    onChange={(e) => setWhatsappNumber(e.target.value)}
-                    placeholder="Seu WhatsApp com DDD (Ex: 21 99999-9999)"
-                    className="flex-1 bg-slate-950/80 text-white placeholder-slate-500 px-5 py-4 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 border border-slate-700/60 font-medium"
-                  />
-                  <button
-                    type="submit"
-                    className="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-sm transition-all shadow-xl shadow-cyan-500/30 flex items-center justify-center gap-2 whitespace-nowrap active:scale-95 cursor-pointer"
-                  >
-                    Garantir Vaga VIP
-                    <Zap className="w-4 h-4 fill-slate-950" />
-                  </button>
-                </form>
-              ) : (
-                <div className="p-6 rounded-2xl glass-panel border border-emerald-500/60 bg-emerald-950/30 text-emerald-300 text-center space-y-2 animate-fade-in">
-                  <CheckCircle2 className="w-10 h-10 mx-auto text-emerald-400" />
-                  <h4 className="font-bold text-lg text-white">Inscrição VIP Confirmada!</h4>
-                  <p className="text-xs text-slate-300">Número registrado ({whatsappNumber}). Você terá condição de fundador vitalícia no lançamento.</p>
-                </div>
-              )}
-
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-5 mt-4 text-xs font-medium text-slate-400">
-                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cyan-400 font-bold" /> Sem fidelidade</span>
-                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cyan-400 font-bold" /> 50% OFF vitalício</span>
-                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cyan-400 font-bold" /> Acesso prioritário</span>
-              </div>
-            </div>
+        {/* CONTEÚDO HERO CENTRALIZADO E ELEVADO SOBRE O VÍDEO */}
+        <div className="relative z-10 max-w-4xl mx-auto text-center space-y-7 pt-12 pb-20" data-aos="fade-up">
+          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-cyan-500/50 bg-cyan-950/70 text-cyan-300 text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-2xl">
+            <Flame className="w-4 h-4 text-cyan-400 animate-bounce" />
+            <span>O Novo Padrão para Assistência de Smartphone</span>
           </div>
 
-          {/* Coluna Visual */}
-          <div className="lg:col-span-5 relative flex justify-center" data-aos="fade-left">
-            <div className="relative w-full max-w-md">
-              <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/35 via-blue-600/25 to-indigo-600/20 blur-3xl rounded-full -z-10 scale-110" />
+          <h1 className="text-5xl sm:text-6xl md:text-7xl font-black text-white tracking-tight leading-[1.08] drop-shadow-[0_10px_35px_rgba(0,0,0,0.8)]">
+            Sua bancada veloz.<br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-200 glow-text-cyan">
+              Seu balcão 100% blindado.
+            </span>
+          </h1>
 
-              <div className="relative rounded-3xl overflow-hidden border border-cyan-400/40 glass-panel shadow-2xl group animate-float-slow">
-                <img 
-                  src="/images/device-scan-render.png" 
-                  alt="EasyCell Scanner Tecnológico do Smartphone"
-                  className="w-full h-auto aspect-square object-cover rounded-2xl group-hover:scale-105 transition-transform duration-700"
+          <p className="text-lg sm:text-2xl text-slate-200 leading-relaxed max-w-2xl mx-auto font-normal drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">
+            Elimine para sempre o cliente que jura que o celular não tinha riscos antes. <strong>Checklist fotográfico</strong> na entrada, <strong>senha de padrão na tela</strong> e <strong>rastreio automático no WhatsApp</strong>.
+          </p>
+
+          {/* Formulário VIP Flutuante Glassmorphism */}
+          <div id="vip" className="pt-4 max-w-lg mx-auto">
+            {!isSubmitted ? (
+              <form onSubmit={triggerConfetti} className="p-2.5 rounded-2xl glass-panel border border-cyan-400/60 shadow-[0_20px_60px_rgba(0,0,0,0.7)] flex flex-col sm:flex-row gap-2 relative group hover:border-cyan-300 transition-all">
+                <input
+                  type="text"
+                  required
+                  value={whatsappNumber}
+                  onChange={(e) => setWhatsappNumber(e.target.value)}
+                  placeholder="Seu WhatsApp com DDD (Ex: 21 99999-9999)"
+                  className="flex-1 bg-slate-950/90 text-white placeholder-slate-400 px-5 py-4 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 border border-slate-700/80 font-medium"
                 />
-                <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_15px_#06b6d4] animate-pulse" style={{ top: '35%' }} />
+                <button
+                  type="submit"
+                  className="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-sm transition-all shadow-xl shadow-cyan-500/40 flex items-center justify-center gap-2 whitespace-nowrap active:scale-95 cursor-pointer"
+                >
+                  Garantir Vaga VIP
+                  <Zap className="w-4 h-4 fill-slate-950" />
+                </button>
+              </form>
+            ) : (
+              <div className="p-6 rounded-2xl glass-panel border border-emerald-500/60 bg-emerald-950/50 text-emerald-300 text-center space-y-2 animate-fade-in shadow-2xl">
+                <CheckCircle2 className="w-10 h-10 mx-auto text-emerald-400" />
+                <h4 className="font-bold text-lg text-white">Inscrição VIP Confirmada!</h4>
+                <p className="text-xs text-slate-300">Número registrado ({whatsappNumber}). Você terá condição de fundador vitalícia no lançamento.</p>
               </div>
+            )}
 
-              <div className="absolute -top-5 -left-6 glass-panel px-4 py-2.5 rounded-2xl border border-cyan-400/50 flex items-center gap-2.5 shadow-2xl backdrop-blur-2xl z-20">
-                <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping" />
-                <span className="text-xs font-bold text-white font-mono uppercase tracking-wider">Scanner Inteligente Ativo</span>
-              </div>
-
-              <div className="absolute -bottom-6 -right-6 glass-panel p-4 rounded-2xl border border-emerald-400/50 flex items-center gap-3.5 shadow-2xl backdrop-blur-2xl z-20">
-                <div className="w-11 h-11 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-400 font-bold shadow-lg shadow-emerald-500/20">
-                  <ShieldCheck className="w-6 h-6" />
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-white">Laudo Fotográfico Blindado</div>
-                  <div className="text-[11px] text-emerald-300 font-mono flex items-center gap-1">
-                    <span>Autenticado com validade jurídica</span>
-                  </div>
-                </div>
-              </div>
+            <div className="flex flex-wrap items-center justify-center gap-6 mt-5 text-xs font-semibold text-slate-300 drop-shadow-md">
+              <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cyan-400 font-bold" /> Sem fidelidade</span>
+              <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cyan-400 font-bold" /> 50% OFF vitalício</span>
+              <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cyan-400 font-bold" /> Acesso prioritário</span>
             </div>
           </div>
-
         </div>
       </section>
 
