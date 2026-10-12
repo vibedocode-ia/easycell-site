@@ -14,7 +14,8 @@ import {
   Fingerprint,
   Sliders,
   Check,
-  Flame
+  Flame,
+  Lock
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import AOS from 'aos';
@@ -30,10 +31,10 @@ export default function App() {
 
   useEffect(() => {
     AOS.init({
-      duration: 850,
+      duration: 800,
       easing: 'ease-out-cubic',
       once: true,
-      offset: 50,
+      offset: 40,
     });
   }, []);
 
@@ -64,17 +65,25 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#030611] text-slate-100 relative overflow-hidden font-sans selection:bg-cyan-500 selection:text-black">
+      {/* Iluminação Ambiente */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1300px] h-[700px] bg-gradient-to-b from-cyan-500/20 via-blue-600/10 to-transparent blur-[160px] pointer-events-none animate-pulse-glow" />
+      <div className="absolute top-[800px] -left-64 w-[500px] h-[500px] bg-indigo-600/15 blur-[150px] pointer-events-none" />
+      <div className="absolute top-[1600px] -right-64 w-[500px] h-[500px] bg-emerald-500/15 blur-[150px] pointer-events-none" />
+
+      {/* Grid Futurista */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b12_1px,transparent_1px),linear-gradient(to_bottom,#1e293b12_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_80%,transparent_100%)] pointer-events-none" />
+
       {/* Top Banner Alert */}
-      <div className="relative z-50 bg-gradient-to-r from-cyan-950 via-slate-900 to-blue-950 border-b border-cyan-500/20 py-2.5 px-4 text-center text-xs font-medium text-cyan-300 flex items-center justify-center gap-2">
+      <div className="bg-gradient-to-r from-cyan-950 via-slate-900 to-blue-950 border-b border-cyan-500/20 py-2.5 px-4 text-center text-xs font-medium text-cyan-300 flex items-center justify-center gap-2 relative z-50">
         <span className="flex h-2 w-2 relative">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
           <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
         </span>
-        <span>Vagas de Fundadores: <strong>Apenas 50 lojas</strong> terão 50% de desconto vitalício.</span>
+        <span>Vagas de Fundadores: <strong>Apenas 50 assistências técnicas</strong> terão 50% de desconto vitalício.</span>
       </div>
 
       {/* Navbar */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl border-b border-slate-800/80 bg-[#030611]/80">
+      <header className="sticky top-0 z-50 backdrop-blur-xl border-b border-slate-800/80 bg-[#030611]/85">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center space-x-3.5">
             <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/30 border border-cyan-300/40 relative">
@@ -109,93 +118,108 @@ export default function App() {
         </div>
       </header>
 
-      {/* HERO SECTION CINEMATOGRÁFICO TOTALMENTE COM O VÍDEO NO FUNDO */}
-      <section className="relative min-h-[92vh] flex items-center justify-center px-6 overflow-hidden">
-        {/* VÍDEO FULL BACKGROUND RESPONSIVO NO FUNDO DO HERO (SEM BLOCO SEPARADO) */}
-        <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
-          {/* Mobile: video vertical 9:16 cobrindo o fundo */}
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="block md:hidden w-full h-full object-cover object-center opacity-90 filter brightness-90 contrast-110"
-          >
-            <source src="/hero-video-mobile.mp4" type="video/mp4" />
-          </video>
-          {/* Desktop: video widescreen 16:9 cobrindo o fundo */}
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="hidden md:block w-full h-full object-cover object-center opacity-90 filter brightness-90 contrast-110"
-          >
-            <source src="/hero-video.mp4" type="video/mp4" />
-          </video>
+      {/* HERO SECTION DE ALTO IMPACTO */}
+      <section className="relative pt-12 pb-24 px-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           
-          {/* Gradientes de Fusão de Alta Fidelidade (para o texto se destacar sem perder a visão do vídeo) */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#030611] via-[#030611]/40 to-[#030611]/85" />
-          <div className="absolute inset-0 bg-radial-gradient from-transparent via-[#030611]/30 to-[#030611]" />
-        </div>
+          {/* Coluna Texto / Copy */}
+          <div className="lg:col-span-7 space-y-6 text-center lg:text-left" data-aos="fade-right">
+            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-cyan-500/40 bg-cyan-950/40 text-cyan-300 text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-inner">
+              <Flame className="w-4 h-4 text-cyan-400 animate-bounce" />
+              <span>O Novo Padrão para Assistência Técnica</span>
+            </div>
 
-        {/* CONTEÚDO HERO CENTRALIZADO E ELEVADO SOBRE O VÍDEO */}
-        <div className="relative z-10 max-w-4xl mx-auto text-center space-y-7 pt-12 pb-20" data-aos="fade-up">
-          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-cyan-500/50 bg-cyan-950/70 text-cyan-300 text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-2xl">
-            <Flame className="w-4 h-4 text-cyan-400 animate-bounce" />
-            <span>O Novo Padrão para Assistência de Smartphone</span>
-          </div>
+            <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight leading-[1.08]">
+              Sua bancada veloz.<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-300 glow-text-cyan">
+                Seu balcão 100% blindado.
+              </span>
+            </h1>
 
-          <h1 className="text-5xl sm:text-6xl md:text-7xl font-black text-white tracking-tight leading-[1.08] drop-shadow-[0_10px_35px_rgba(0,0,0,0.8)]">
-            Sua bancada veloz.<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-200 glow-text-cyan">
-              Seu balcão 100% blindado.
-            </span>
-          </h1>
+            <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl mx-auto lg:mx-0 font-normal">
+              Elimine para sempre o cliente que jura que o celular não tinha riscos ou que a câmera funcionava antes. <strong>Checklist fotográfico na entrada</strong>, <strong>senha de padrão na tela</strong> e <strong>rastreio automático no WhatsApp</strong>.
+            </p>
 
-          <p className="text-lg sm:text-2xl text-slate-200 leading-relaxed max-w-2xl mx-auto font-normal drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]">
-            Elimine para sempre o cliente que jura que o celular não tinha riscos antes. <strong>Checklist fotográfico</strong> na entrada, <strong>senha de padrão na tela</strong> e <strong>rastreio automático no WhatsApp</strong>.
-          </p>
+            {/* Formulário VIP Hero */}
+            <div id="vip" className="pt-2 max-w-xl mx-auto lg:mx-0">
+              {!isSubmitted ? (
+                <form onSubmit={triggerConfetti} className="p-2 rounded-2xl glass-panel border border-cyan-500/50 shadow-2xl flex flex-col sm:flex-row gap-2 relative group hover:border-cyan-400 transition-all">
+                  <input
+                    type="text"
+                    required
+                    value={whatsappNumber}
+                    onChange={(e) => setWhatsappNumber(e.target.value)}
+                    placeholder="Seu WhatsApp com DDD (Ex: 21 99999-9999)"
+                    className="flex-1 bg-slate-950/80 text-white placeholder-slate-500 px-5 py-4 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 border border-slate-700/60 font-medium"
+                  />
+                  <button
+                    type="submit"
+                    className="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-sm transition-all shadow-xl shadow-cyan-500/30 flex items-center justify-center gap-2 whitespace-nowrap active:scale-95 cursor-pointer"
+                  >
+                    Garantir Vaga VIP
+                    <Zap className="w-4 h-4 fill-slate-950" />
+                  </button>
+                </form>
+              ) : (
+                <div className="p-6 rounded-2xl glass-panel border border-emerald-500/60 bg-emerald-950/30 text-emerald-300 text-center space-y-2 animate-fade-in">
+                  <CheckCircle2 className="w-10 h-10 mx-auto text-emerald-400" />
+                  <h4 className="font-bold text-lg text-white">Inscrição VIP Confirmada!</h4>
+                  <p className="text-xs text-slate-300">Número registrado ({whatsappNumber}). Você terá condição de fundador vitalícia no lançamento.</p>
+                </div>
+              )}
 
-          {/* Formulário VIP Flutuante Glassmorphism */}
-          <div id="vip" className="pt-4 max-w-lg mx-auto">
-            {!isSubmitted ? (
-              <form onSubmit={triggerConfetti} className="p-2.5 rounded-2xl glass-panel border border-cyan-400/60 shadow-[0_20px_60px_rgba(0,0,0,0.7)] flex flex-col sm:flex-row gap-2 relative group hover:border-cyan-300 transition-all">
-                <input
-                  type="text"
-                  required
-                  value={whatsappNumber}
-                  onChange={(e) => setWhatsappNumber(e.target.value)}
-                  placeholder="Seu WhatsApp com DDD (Ex: 21 99999-9999)"
-                  className="flex-1 bg-slate-950/90 text-white placeholder-slate-400 px-5 py-4 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 border border-slate-700/80 font-medium"
-                />
-                <button
-                  type="submit"
-                  className="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-sm transition-all shadow-xl shadow-cyan-500/40 flex items-center justify-center gap-2 whitespace-nowrap active:scale-95 cursor-pointer"
-                >
-                  Garantir Vaga VIP
-                  <Zap className="w-4 h-4 fill-slate-950" />
-                </button>
-              </form>
-            ) : (
-              <div className="p-6 rounded-2xl glass-panel border border-emerald-500/60 bg-emerald-950/50 text-emerald-300 text-center space-y-2 animate-fade-in shadow-2xl">
-                <CheckCircle2 className="w-10 h-10 mx-auto text-emerald-400" />
-                <h4 className="font-bold text-lg text-white">Inscrição VIP Confirmada!</h4>
-                <p className="text-xs text-slate-300">Número registrado ({whatsappNumber}). Você terá condição de fundador vitalícia no lançamento.</p>
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-5 mt-4 text-xs font-medium text-slate-400">
+                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cyan-400 font-bold" /> Sem fidelidade</span>
+                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cyan-400 font-bold" /> 50% OFF vitalício</span>
+                <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cyan-400 font-bold" /> Acesso prioritário</span>
               </div>
-            )}
-
-            <div className="flex flex-wrap items-center justify-center gap-6 mt-5 text-xs font-semibold text-slate-300 drop-shadow-md">
-              <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cyan-400 font-bold" /> Sem fidelidade</span>
-              <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cyan-400 font-bold" /> 50% OFF vitalício</span>
-              <span className="flex items-center gap-1.5"><Check className="w-4 h-4 text-cyan-400 font-bold" /> Acesso prioritário</span>
             </div>
           </div>
+
+          {/* Coluna Visual: RENDER 3D DO SMARTPHONE LIMPO E ELEGANTE COM CARDS FLUTUANTES */}
+          <div className="lg:col-span-5 relative flex justify-center" data-aos="fade-left">
+            <div className="relative w-full max-w-md">
+              {/* Glow Traseiro Suave */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/35 via-blue-600/25 to-indigo-600/20 blur-3xl rounded-full -z-10 scale-110" />
+
+              {/* Container Central com a Arte 3D */}
+              <div className="relative rounded-3xl overflow-hidden border border-cyan-400/40 glass-panel shadow-2xl group animate-float-slow">
+                <img 
+                  src="/images/device-scan-render.png" 
+                  alt="EasyCell Scanner Tecnológico do Smartphone"
+                  className="w-full h-auto aspect-square object-cover rounded-2xl group-hover:scale-105 transition-transform duration-700"
+                />
+
+                {/* Scanner Laser Animado que cruza a tela */}
+                <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_15px_#06b6d4] animate-pulse" style={{ top: '35%' }} />
+              </div>
+
+              {/* Badge Superior Flutuante (Fora da Imagem para não tapar o visual) */}
+              <div className="absolute -top-5 -left-6 glass-panel px-4 py-2.5 rounded-2xl border border-cyan-400/50 flex items-center gap-2.5 shadow-2xl backdrop-blur-2xl z-20">
+                <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping" />
+                <span className="text-xs font-bold text-white font-mono uppercase tracking-wider">Scanner Inteligente Ativo</span>
+              </div>
+
+              {/* Card Inferior Flutuante (Integrado com elegância) */}
+              <div className="absolute -bottom-6 -right-6 glass-panel p-4 rounded-2xl border border-emerald-400/50 flex items-center gap-3.5 shadow-2xl backdrop-blur-2xl z-20">
+                <div className="w-11 h-11 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-400 font-bold shadow-lg shadow-emerald-500/20">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-white">Laudo Fotográfico Blindado</div>
+                  <div className="text-[11px] text-emerald-300 font-mono flex items-center gap-1">
+                    <span>Autenticado com validade jurídica</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
 
       {/* SEÇÃO DA BANCADA INTERATIVA: SENHA DE DESENHO & BOT DE WHATSAPP */}
-      <section id="demonstracao" className="py-24 px-6 max-w-7xl mx-auto border-t border-slate-800/80 relative z-20 bg-[#030611]">
+      <section id="demonstracao" className="py-24 px-6 max-w-7xl mx-auto border-t border-slate-800/80">
         <div className="text-center max-w-2xl mx-auto mb-16" data-aos="fade-up">
           <span className="text-xs font-bold text-cyan-400 uppercase tracking-widest">Demonstração Prática</span>
           <h2 className="text-3xl sm:text-5xl font-black text-white mt-2">Os dois maiores pesadelos resolvidos em segundos</h2>
@@ -401,7 +425,7 @@ export default function App() {
       </section>
 
       {/* Rodapé */}
-      <footer className="border-t border-slate-900 py-12 px-6 text-center text-xs text-slate-500 font-mono relative z-20 bg-[#030611]">
+      <footer className="border-t border-slate-900 py-12 px-6 text-center text-xs text-slate-500 font-mono">
         <p>© 2026 EasyCell • Uma tecnologia VibeDoCode. Todos os direitos reservados.</p>
       </footer>
     </div>
