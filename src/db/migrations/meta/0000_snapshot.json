@@ -1,0 +1,717 @@
+{
+  "id": "a87746dd-2392-491a-b033-1a6d1a8a5711",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.usuarios": {
+      "name": "usuarios",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "senha_hash": {
+          "name": "senha_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cargo": {
+          "name": "cargo",
+          "type": "user_role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'atendente'"
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "atualizado_em": {
+          "name": "atualizado_em",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "usuarios_email_unique": {
+          "name": "usuarios_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.clientes": {
+      "name": "clientes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "whatsapp": {
+          "name": "whatsapp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cpf": {
+          "name": "cpf",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "endereco": {
+          "name": "endereco",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "observacoes": {
+          "name": "observacoes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "atualizado_em": {
+          "name": "atualizado_em",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ordens_servico": {
+      "name": "ordens_servico",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "numero_os": {
+          "name": "numero_os",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cliente_id": {
+          "name": "cliente_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tecnico_id": {
+          "name": "tecnico_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aparelho_marca": {
+          "name": "aparelho_marca",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "aparelho_modelo": {
+          "name": "aparelho_modelo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "aparelho_cor": {
+          "name": "aparelho_cor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aparelho_imei": {
+          "name": "aparelho_imei",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aparelho_serial": {
+          "name": "aparelho_serial",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "senha_tipo": {
+          "name": "senha_tipo",
+          "type": "senha_tipo",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'padrao_pontos'"
+        },
+        "senha_valor": {
+          "name": "senha_valor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "defeito_relatado": {
+          "name": "defeito_relatado",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "diagnostico_tecnico": {
+          "name": "diagnostico_tecnico",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "laudo_conclusao": {
+          "name": "laudo_conclusao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "laudo_fotos": {
+          "name": "laudo_fotos",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "checklist_entrada": {
+          "name": "checklist_entrada",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "os_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'entrada'"
+        },
+        "termo_assinado": {
+          "name": "termo_assinado",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "assinatura_url": {
+          "name": "assinatura_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor_pecas": {
+          "name": "valor_pecas",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "valor_mao_de_obra": {
+          "name": "valor_mao_de_obra",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "valor_desconto": {
+          "name": "valor_desconto",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "valor_total": {
+          "name": "valor_total",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "valor_adiantamento": {
+          "name": "valor_adiantamento",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "forma_pagamento": {
+          "name": "forma_pagamento",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_pagamento": {
+          "name": "data_pagamento",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "atualizado_em": {
+          "name": "atualizado_em",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ordens_servico_cliente_id_clientes_id_fk": {
+          "name": "ordens_servico_cliente_id_clientes_id_fk",
+          "tableFrom": "ordens_servico",
+          "tableTo": "clientes",
+          "columnsFrom": [
+            "cliente_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "ordens_servico_tecnico_id_usuarios_id_fk": {
+          "name": "ordens_servico_tecnico_id_usuarios_id_fk",
+          "tableFrom": "ordens_servico",
+          "tableTo": "usuarios",
+          "columnsFrom": [
+            "tecnico_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "ordens_servico_numero_os_unique": {
+          "name": "ordens_servico_numero_os_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "numero_os"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.caixa_movimentacoes": {
+      "name": "caixa_movimentacoes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "ordem_id": {
+          "name": "ordem_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valor": {
+          "name": "valor",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "metodo_pagamento": {
+          "name": "metodo_pagamento",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "operador_nome": {
+          "name": "operador_nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "caixa_movimentacoes_ordem_id_ordens_servico_id_fk": {
+          "name": "caixa_movimentacoes_ordem_id_ordens_servico_id_fk",
+          "tableFrom": "caixa_movimentacoes",
+          "tableTo": "ordens_servico",
+          "columnsFrom": [
+            "ordem_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.estoque_itens": {
+      "name": "estoque_itens",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "codigo": {
+          "name": "codigo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "estoque_tipo",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'peca_reposicao'"
+        },
+        "imei": {
+          "name": "imei",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "marca_compativel": {
+          "name": "marca_compativel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "modelo_compativel": {
+          "name": "modelo_compativel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "quantidade": {
+          "name": "quantidade",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "quantidade_minima": {
+          "name": "quantidade_minima",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 2
+        },
+        "preco_custo": {
+          "name": "preco_custo",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "preco_venda": {
+          "name": "preco_venda",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "localizacao": {
+          "name": "localizacao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "atualizado_em": {
+          "name": "atualizado_em",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "estoque_itens_codigo_unique": {
+          "name": "estoque_itens_codigo_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "codigo"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.os_itens": {
+      "name": "os_itens",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "ordem_id": {
+          "name": "ordem_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "item_id": {
+          "name": "item_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quantidade": {
+          "name": "quantidade",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "valor_unitario": {
+          "name": "valor_unitario",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valor_total": {
+          "name": "valor_total",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "garantia_dias": {
+          "name": "garantia_dias",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 90
+        },
+        "criado_em": {
+          "name": "criado_em",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "os_itens_ordem_id_ordens_servico_id_fk": {
+          "name": "os_itens_ordem_id_ordens_servico_id_fk",
+          "tableFrom": "os_itens",
+          "tableTo": "ordens_servico",
+          "columnsFrom": [
+            "ordem_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "os_itens_item_id_estoque_itens_id_fk": {
+          "name": "os_itens_item_id_estoque_itens_id_fk",
+          "tableFrom": "os_itens",
+          "tableTo": "estoque_itens",
+          "columnsFrom": [
+            "item_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.user_role": {
+      "name": "user_role",
+      "schema": "public",
+      "values": [
+        "admin",
+        "atendente",
+        "tecnico"
+      ]
+    },
+    "public.os_status": {
+      "name": "os_status",
+      "schema": "public",
+      "values": [
+        "entrada",
+        "orcamento_pendente",
+        "aprovado_reparo",
+        "pronto_retirada",
+        "entregue_pago"
+      ]
+    },
+    "public.senha_tipo": {
+      "name": "senha_tipo",
+      "schema": "public",
+      "values": [
+        "padrao_pontos",
+        "pin_numerico",
+        "alfanumerica",
+        "sem_senha"
+      ]
+    },
+    "public.estoque_tipo": {
+      "name": "estoque_tipo",
+      "schema": "public",
+      "values": [
+        "peca_reposicao",
+        "servico",
+        "aparelho_usado",
+        "vitrine_novo",
+        "acessorio"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

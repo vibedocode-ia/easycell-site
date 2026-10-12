@@ -12,15 +12,21 @@
   "dependencies": {
     "aos": "^2.3.4",
     "canvas-confetti": "^1.9.4",
+    "drizzle-orm": "^0.45.4",
     "lucide-react": "^1.49.0",
+    "postgres": "^3.4.9",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.4",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@types/node": "^26.6.5",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
     "autoprefixer": "^10.6.1",
+    "drizzle-kit": "^0.31.11",
     "oxlint": "^1.81.0",
     "postcss": "^8.5.28",
     "tailwindcss": "^3.4.17",
