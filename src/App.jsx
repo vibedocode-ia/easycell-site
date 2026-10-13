@@ -18,6 +18,7 @@ import AutomacoesPage from './pages/system/AutomacoesPage';
 import TecnicosPage from './pages/system/TecnicosPage';
 import ConfiguracoesPage from './pages/system/ConfiguracoesPage';
 import LojasPage from './pages/system/LojasPage';
+import PerfilPage from './pages/system/PerfilPage';
 import AdminSaasPage from './pages/admin/AdminSaasPage';
 
 export default function App() {
@@ -47,6 +48,7 @@ export default function App() {
               <Route path="tecnicos" element={<TecnicosPage />} />
               <Route path="configuracoes" element={<ConfiguracoesPage />} />
               <Route path="lojas" element={<LojasPage />} />
+              <Route path="perfil" element={<PerfilPage />} />
             </Route>
           </Route>
 

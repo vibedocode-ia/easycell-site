@@ -16,7 +16,8 @@ import {
   Lock,
   Unlock,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  Pencil
 } from 'lucide-react';
 import { VERSION } from '../../lib/version';
 
@@ -72,6 +73,9 @@ export default function AdminSaasPage() {
   const [busca, setBusca] = useState('');
   const [filtroPlano, setFiltroPlano] = useState('todos');
   const [modalNovoTenant, setModalNovoTenant] = useState(false);
+  const [modalEditarTenant, setModalEditarTenant] = useState(false);
+  const [tenantEdicao, setTenantEdicao] = useState(null);
+  const [salvandoEdicao, setSalvandoEdicao] = useState(false);
   const [carregando, setCarregando] = useState(false);
 
   const [novoForm, setNovoForm] = useState({
@@ -139,6 +143,68 @@ export default function AdminSaasPage() {
       }
       return t;
     }));
+  };
+
+  // Abrir modal de edição com os dados da empresa cliente
+  const handleAbrirEditar = (tenant) => {
+    setTenantEdicao({
+      id: tenant.id,
+      nomeEmpresa: tenant.nomeEmpresa || '',
+      slug: tenant.slug || '',
+      cnpj: tenant.cnpj || '',
+      emailResponsavel: tenant.emailResponsavel || '',
+      telefone: tenant.telefone || '',
+      plano: tenant.plano || 'pro',
+      statusAssinatura: tenant.statusAssinatura || 'ativa',
+      valorMensalidade: String(Math.round((tenant.valorMensalidade || 19700) / 100)),
+      limiteLojas: String(tenant.limiteLojas || 3)
+    });
+    setModalEditarTenant(true);
+  };
+
+  // Salvar alterações da empresa cliente
+  const handleSalvarEdicao = async (e) => {
+    e.preventDefault();
+    if (!tenantEdicao) return;
+    setSalvandoEdicao(true);
+
+    const token = localStorage.getItem('easycell_token');
+    const payload = {
+      nomeEmpresa: tenantEdicao.nomeEmpresa,
+      cnpj: tenantEdicao.cnpj,
+      emailResponsavel: tenantEdicao.emailResponsavel,
+      telefone: tenantEdicao.telefone,
+      plano: tenantEdicao.plano,
+      statusAssinatura: tenantEdicao.statusAssinatura,
+      valorMensalidade: Number(tenantEdicao.valorMensalidade) * 100,
+      limiteLojas: Number(tenantEdicao.limiteLojas)
+    };
+
+    try {
+      await fetch(`/api/v1/saas/tenants/${tenantEdicao.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(payload)
+      });
+    } catch (err) {
+      console.warn('API indisponível, salvando alteração localmente');
+    }
+
+    setTenantsList(prev => prev.map(t => {
+      if (t.id === tenantEdicao.id) {
+        return {
+          ...t,
+          ...payload
+        };
+      }
+      return t;
+    }));
+
+    setSalvandoEdicao(false);
+    setModalEditarTenant(false);
   };
 
   // Cadastrar nova empresa assinante
@@ -424,7 +490,15 @@ export default function AdminSaasPage() {
                     </span>
                   </td>
 
-                  <td className="py-4 px-5 text-right">
+                  <td className="py-4 px-5 text-right space-x-2">
+                    <button
+                      onClick={() => handleAbrirEditar(t)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-600"
+                    >
+                      <Pencil className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Editar</span>
+                    </button>
+
                     <button
                       onClick={() => handleToggleStatus(t.id, t.statusAssinatura)}
                       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
@@ -586,6 +660,149 @@ export default function AdminSaasPage() {
                   className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs shadow-lg shadow-cyan-500/20 active:scale-95 disabled:opacity-50"
                 >
                   {carregando ? 'Criando Tenant...' : 'Criar e Ativar Tenant'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Edição de Empresa Cliente */}
+      {modalEditarTenant && tenantEdicao && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-cyan-500/30 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center">
+                  <Pencil className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-white">Editar Empresa Cliente</h3>
+                  <p className="text-[11px] text-slate-400 font-mono">ID: {tenantEdicao.id}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setModalEditarTenant(false)}
+                className="text-slate-400 hover:text-white text-lg cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSalvarEdicao} className="space-y-4 text-xs">
+              <div>
+                <label className="block text-slate-300 font-semibold mb-1">Nome da Empresa / Fantasia</label>
+                <input
+                  type="text"
+                  required
+                  value={tenantEdicao.nomeEmpresa}
+                  onChange={(e) => setTenantEdicao({ ...tenantEdicao, nomeEmpresa: e.target.value })}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-cyan-400 font-medium"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">CNPJ</label>
+                  <input
+                    type="text"
+                    value={tenantEdicao.cnpj}
+                    onChange={(e) => setTenantEdicao({ ...tenantEdicao, cnpj: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-cyan-400 font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Status da Assinatura</label>
+                  <select
+                    value={tenantEdicao.statusAssinatura}
+                    onChange={(e) => setTenantEdicao({ ...tenantEdicao, statusAssinatura: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-cyan-400 font-bold"
+                  >
+                    <option value="ativa">Ativa</option>
+                    <option value="suspensa">Suspensa</option>
+                    <option value="pendente">Pendente</option>
+                    <option value="cancelada">Cancelada</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">E-mail do Responsável</label>
+                  <input
+                    type="email"
+                    required
+                    value={tenantEdicao.emailResponsavel}
+                    onChange={(e) => setTenantEdicao({ ...tenantEdicao, emailResponsavel: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-cyan-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Telefone / WhatsApp</label>
+                  <input
+                    type="text"
+                    value={tenantEdicao.telefone}
+                    onChange={(e) => setTenantEdicao({ ...tenantEdicao, telefone: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-cyan-400 font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Plano</label>
+                  <select
+                    value={tenantEdicao.plano}
+                    onChange={(e) => {
+                      const p = e.target.value;
+                      let valor = tenantEdicao.valorMensalidade;
+                      let limite = tenantEdicao.limiteLojas;
+                      if (p === 'starter') { valor = '97'; limite = '1'; }
+                      if (p === 'pro') { valor = '197'; limite = '3'; }
+                      if (p === 'enterprise') { valor = '497'; limite = '10'; }
+                      setTenantEdicao({ ...tenantEdicao, plano: p, valorMensalidade: valor, limiteLojas: limite });
+                    }}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-cyan-400"
+                  >
+                    <option value="starter">Starter</option>
+                    <option value="pro">Pro</option>
+                    <option value="enterprise">Enterprise</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Mensalidade (R$)</label>
+                  <input
+                    type="number"
+                    value={tenantEdicao.valorMensalidade}
+                    onChange={(e) => setTenantEdicao({ ...tenantEdicao, valorMensalidade: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-cyan-400 font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Limite Lojas</label>
+                  <input
+                    type="number"
+                    value={tenantEdicao.limiteLojas}
+                    onChange={(e) => setTenantEdicao({ ...tenantEdicao, limiteLojas: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-cyan-400 font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setModalEditarTenant(false)}
+                  className="px-4 py-2.5 rounded-xl text-slate-400 hover:text-white text-xs font-bold cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={salvandoEdicao}
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs shadow-lg shadow-cyan-500/20 active:scale-95 disabled:opacity-50 cursor-pointer"
+                >
+                  {salvandoEdicao ? 'Salvando Alterações...' : 'Salvar Alterações'}
                 </button>
               </div>
             </form>

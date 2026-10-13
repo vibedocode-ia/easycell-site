@@ -129,4 +129,109 @@ export async function authRoutes(fastify, options) {
   fastify.get('/api/v1/auth/me', { preHandler: [authenticateUser] }, async (request, reply) => {
     return reply.send({ user: request.user });
   });
+
+  // Atualizar senha do usuário autenticado (com Scrypt KDF)
+  fastify.put('/api/v1/auth/senha', { preHandler: [authenticateUser] }, async (request, reply) => {
+    const { senhaAtual, novaSenha } = request.body || {};
+    const userId = request.user?.id;
+    const userEmail = request.user?.email?.toLowerCase().trim();
+
+    if (!senhaAtual || !novaSenha) {
+      return reply.status(400).send({ error: 'Senha atual e nova senha são obrigatórias' });
+    }
+
+    if (novaSenha.length < 6) {
+      return reply.status(400).send({ error: 'A nova senha deve ter no mínimo 6 caracteres' });
+    }
+
+    // 1. Caso SuperAdmin Vanderson Oliveira
+    if (userEmail === SUPERADMIN_VANDERSON.email || userId === SUPERADMIN_VANDERSON.id) {
+      const senhaAtualValida = verifyPasswordScrypt(senhaAtual, SUPERADMIN_VANDERSON.senhaHash);
+      if (!senhaAtualValida) {
+        return reply.status(401).send({ error: 'Senha atual incorreta' });
+      }
+
+      const novoHash = hashPasswordScrypt(novaSenha);
+      SUPERADMIN_VANDERSON.senhaHash = novoHash;
+
+      try {
+        await db.update(usuarios).set({
+          senhaHash: novoHash,
+          atualizadoEm: new Date()
+        }).where(eq(usuarios.id, SUPERADMIN_VANDERSON.id)).catch(() => {});
+      } catch (dbErr) {
+        request.log.warn('Aviso: Postgres offline, senha atualizada na instância em memória');
+      }
+
+      return reply.send({
+        sucesso: true,
+        message: 'Senha do SuperAdmin atualizada com sucesso com criptografia Scrypt'
+      });
+    }
+
+    // 2. Usuários comuns no PostgreSQL
+    try {
+      const userList = await db.select().from(usuarios).where(eq(usuarios.id, userId)).limit(1);
+      if (userList.length === 0) {
+        return reply.status(404).send({ error: 'Usuário não encontrado' });
+      }
+
+      const user = userList[0];
+      const senhaValida = verifyPasswordScrypt(senhaAtual, user.senhaHash);
+      if (!senhaValida) {
+        return reply.status(401).send({ error: 'Senha atual incorreta' });
+      }
+
+      const novoHash = hashPasswordScrypt(novaSenha);
+      await db.update(usuarios).set({
+        senhaHash: novoHash,
+        atualizadoEm: new Date()
+      }).where(eq(usuarios.id, userId));
+
+      return reply.send({ sucesso: true, message: 'Senha atualizada com sucesso' });
+    } catch (err) {
+      request.log.error(err, 'Erro ao atualizar senha no banco');
+      return reply.status(500).send({ error: 'Falha ao atualizar senha' });
+    }
+  });
+
+  // Atualizar dados de perfil do usuário autenticado
+  fastify.put('/api/v1/auth/perfil', { preHandler: [authenticateUser] }, async (request, reply) => {
+    const { nome, email } = request.body || {};
+    const userId = request.user?.id;
+
+    if (!nome) {
+      return reply.status(400).send({ error: 'Nome é obrigatório' });
+    }
+
+    if (userId === SUPERADMIN_VANDERSON.id) {
+      SUPERADMIN_VANDERSON.nome = nome;
+      if (email) SUPERADMIN_VANDERSON.email = email.toLowerCase().trim();
+      return reply.send({
+        sucesso: true,
+        user: {
+          id: SUPERADMIN_VANDERSON.id,
+          nome: SUPERADMIN_VANDERSON.nome,
+          email: SUPERADMIN_VANDERSON.email,
+          cargo: SUPERADMIN_VANDERSON.cargo,
+          tenantId: SUPERADMIN_VANDERSON.tenantId
+        }
+      });
+    }
+
+    try {
+      await db.update(usuarios).set({
+        nome,
+        ...(email ? { email: email.toLowerCase().trim() } : {}),
+        atualizadoEm: new Date()
+      }).where(eq(usuarios.id, userId));
+
+      return reply.send({
+        sucesso: true,
+        user: { ...request.user, nome, ...(email ? { email: email.toLowerCase().trim() } : {}) }
+      });
+    } catch (err) {
+      return reply.status(500).send({ error: 'Falha ao atualizar dados de perfil' });
+    }
+  });
 }

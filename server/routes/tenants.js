@@ -131,6 +131,48 @@ export async function tenantsRoutes(fastify, options) {
     }
   );
 
+  // 3.1 Edição completa de tenant (SuperAdmin)
+  fastify.put(
+    '/api/v1/saas/tenants/:id',
+    { preHandler: [authenticateUser, requireRole(['superadmin', 'admin'])] },
+    async (request, reply) => {
+      const { id } = request.params;
+      const {
+        nomeEmpresa,
+        cnpj,
+        emailResponsavel,
+        telefone,
+        plano,
+        statusAssinatura,
+        valorMensalidade,
+        limiteLojas
+      } = request.body || {};
+
+      try {
+        const updateData = {
+          ...(nomeEmpresa ? { nomeEmpresa } : {}),
+          ...(cnpj !== undefined ? { cnpj } : {}),
+          ...(emailResponsavel ? { emailResponsavel } : {}),
+          ...(telefone !== undefined ? { telefone } : {}),
+          ...(plano ? { plano } : {}),
+          ...(statusAssinatura ? { statusAssinatura } : {}),
+          ...(valorMensalidade !== undefined ? { valorMensalidade: Number(valorMensalidade) } : {}),
+          ...(limiteLojas !== undefined ? { limiteLojas: Number(limiteLojas) } : {}),
+          atualizadoEm: new Date()
+        };
+
+        await db
+          .update(tenants)
+          .set(updateData)
+          .where(eq(tenants.id, id));
+
+        return reply.send({ sucesso: true, id, tenant: updateData });
+      } catch (err) {
+        return reply.status(503).send({ error: 'Falha ao atualizar dados do inquilino no banco' });
+      }
+    }
+  );
+
   // ==========================================
   // GESTÃO DE LOJAS / FILIAIS DO TENANT ATIVO
   // ==========================================

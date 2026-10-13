@@ -14,7 +14,8 @@ import {
   Users,
   Settings,
   Store,
-  Building2
+  Building2,
+  User
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { VERSION } from '../lib/version';
@@ -38,6 +39,7 @@ export default function SystemSidebar() {
     { label: 'Estoque Triplo', path: '/system/estoque', icon: Package },
     { label: 'Frente de Caixa', path: '/system/caixa', icon: DollarSign },
     { label: 'Configurações', path: '/system/configuracoes', icon: Settings },
+    { label: 'Meu Perfil', path: '/system/perfil', icon: User },
     { label: 'Super Admin SaaS', path: '/admin/saas', icon: Building2 },
   ];
 
@@ -95,17 +97,23 @@ export default function SystemSidebar() {
 
       {/* User Card & Logout */}
       <div className="p-4 border-t border-slate-800/80 bg-slate-950/40">
-        <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 mb-2">
+        <NavLink
+          to="/system/perfil"
+          className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-cyan-500/40 transition-all mb-2 group cursor-pointer"
+        >
           <div className="flex items-center gap-2.5 truncate">
-            <div className="w-8 h-8 rounded-lg bg-cyan-950 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-bold text-xs font-mono">
-              {user?.nome?.[0] || 'U'}
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500/20 to-blue-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-bold text-xs font-mono group-hover:scale-105 transition-transform">
+              {user?.nome?.[0] || 'V'}
             </div>
             <div className="truncate">
-              <div className="text-xs font-bold text-white truncate">{user?.nome || 'Operador'}</div>
-              <div className="text-[10px] text-slate-400 capitalize">{user?.cargo || 'Atendente'}</div>
+              <div className="text-xs font-bold text-white truncate group-hover:text-cyan-400 transition-colors">{user?.nome || 'Operador'}</div>
+              <div className="text-[10px] text-slate-400 capitalize flex items-center gap-1">
+                <span>{user?.cargo || 'Atendente'}</span>
+                <span className="text-cyan-400 font-semibold">• Perfil</span>
+              </div>
             </div>
           </div>
-        </div>
+        </NavLink>
 
         <button
           onClick={handleLogout}
