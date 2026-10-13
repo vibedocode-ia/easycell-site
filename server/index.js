@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import { authRoutes } from './routes/auth.js';
@@ -5,6 +6,8 @@ import { osRoutes } from './routes/os.js';
 import { whatsappRoutes } from './routes/whatsapp.js';
 import { laudosRoutes } from './routes/laudos.js';
 import { tecnicosRoutes } from './routes/tecnicos.js';
+
+const pkg = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 
 export function buildServer() {
   const server = Fastify({
@@ -43,7 +46,7 @@ export function buildServer() {
   server.get('/api/v1/health', async (request, reply) => {
     return {
       status: 'online',
-      versao: 'V1.01.03',
+      versao: `V${pkg.version}`,
       banco: 'PostgreSQL 16 via Drizzle ORM (Ativo)',
       gateway: {
         provedor: 'SofIA / Baileys Gateway',

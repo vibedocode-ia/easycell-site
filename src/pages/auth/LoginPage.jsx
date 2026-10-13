@@ -5,8 +5,8 @@ import { useAuth } from '../../context/AuthContext';
 import { VERSION } from '../../lib/version';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('admin@easycell.com.br');
-  const [senha, setSenha] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
   const { login, isAuthenticated } = useAuth();
@@ -19,20 +19,23 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErro('');
     setCarregando(true);
 
-    setTimeout(() => {
-      const res = login(email, senha);
-      if (res.success) {
+    try {
+      const res = await login(email, senha);
+      if (res && res.success) {
         navigate('/system');
       } else {
-        setErro(res.message || 'Credenciais inválidas');
-        setCarregando(false);
+        setErro(res?.message || 'Credenciais inválidas');
       }
-    }, 400);
+    } catch (err) {
+      setErro('Erro de conexão ao processar login.');
+    } finally {
+      setCarregando(false);
+    }
   };
 
   return (
