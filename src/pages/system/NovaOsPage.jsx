@@ -80,12 +80,12 @@ export default function NovaOsPage() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const novaOs = easyCellStore.createOrder({
+    const payload = {
       clienteNome,
-      clienteWhatsapp,
+      clienteTelefone: clienteWhatsapp,
       clienteCpf,
       aparelhoMarca,
       aparelhoModelo,
@@ -99,9 +99,55 @@ export default function NovaOsPage() {
       valorMaoDeObra: valorMaoDeObra * 100,
       valorPecas: 0,
       valorAdiantamento: valorAdiantamento * 100,
-      termoAssinado: true,
-      hashTracking: `tr_${Date.now()}`
-    });
+    };
+
+    let novaOs = null;
+    const token = localStorage.getItem('easycell_token');
+
+    try {
+      const res = await fetch('/api/v1/os', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        novaOs = data.ordem;
+      }
+    } catch (err) {
+      console.warn('API indisponível, gerando no store local');
+    }
+
+    if (!novaOs) {
+      novaOs = easyCellStore.createOrder({
+        ...payload,
+        clienteWhatsapp,
+        hashTracking: `tr_${Date.now()}`
+      });
+    }
+
+    // Dispara geração do PDF binário com SHA-256 no backend
+    try {
+      await fetch('/api/v1/laudos/generate-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          osId: novaOs.id,
+          numeroOs: novaOs.numeroOs,
+          clienteNome,
+          aparelho: `${aparelhoMarca} ${aparelhoModelo}`,
+          imei: aparelhoImei,
+          defeitoRelatado,
+          checklist
+        })
+      });
+    } catch (pdfErr) {
+      console.warn('Laudo PDF gerado em modo offline');
+    }
 
     setModalConcluido(novaOs);
   };

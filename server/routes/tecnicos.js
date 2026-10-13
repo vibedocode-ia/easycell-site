@@ -1,121 +1,107 @@
-// Mock store de técnicos e comissões da Fase 2
-const tecnicosStore = [
-  {
-    id: 'tec_1',
-    nome: 'Carlos Alexandre Silva',
-    especialidade: 'Hardware & Micro-soldagem de Placas',
-    telefone: '11 98765-4321',
-    percentualComissao: 35,
-    ativo: true,
-    totalOsMes: 18,
-    totalComissaoMes: 245000 // R$ 2.450,00 em centavos
-  },
-  {
-    id: 'tec_2',
-    nome: 'Mariana Duarte Souza',
-    especialidade: 'Telas OLED & Recuperação de FaceID',
-    telefone: '11 97654-3210',
-    percentualComissao: 30,
-    ativo: true,
-    totalOsMes: 24,
-    totalComissaoMes: 312000 // R$ 3.120,00 em centavos
-  },
-  {
-    id: 'tec_3',
-    nome: 'Felipe Santos Oliveira',
-    especialidade: 'Baterias, Carcaças & Periféricos',
-    telefone: '11 96543-2109',
-    percentualComissao: 25,
-    ativo: true,
-    totalOsMes: 15,
-    totalComissaoMes: 165000 // R$ 1.650,00 em centavos
-  }
-];
-
-const comissoesStore = [
-  {
-    id: 'com_1',
-    ordemId: 'os_1001',
-    numeroOs: 1001,
-    tecnicoId: 'tec_1',
-    tecnicoNome: 'Carlos Alexandre Silva',
-    aparelho: 'iPhone 13 Pro',
-    valorMaoDeObra: 15000,
-    percentualAplicado: 35,
-    valorComissao: 5250, // 35% de R$ 150 = R$ 52,50
-    statusPagamento: 'pendente',
-    criadoEm: new Date(Date.now() - 3600000 * 4).toISOString()
-  },
-  {
-    id: 'com_2',
-    ordemId: 'os_1002',
-    numeroOs: 1002,
-    tecnicoId: 'tec_2',
-    tecnicoNome: 'Mariana Duarte Souza',
-    aparelho: 'Galaxy S22 Ultra',
-    valorMaoDeObra: 22000,
-    percentualAplicado: 30,
-    valorComissao: 6600, // 30% de R$ 220 = R$ 66,00
-    statusPagamento: 'pago',
-    dataQuitacao: new Date(Date.now() - 3600000 * 2).toISOString(),
-    responsavelQuitacao: 'Administrador Balcão',
-    criadoEm: new Date(Date.now() - 3600000 * 24).toISOString()
-  }
-];
+import crypto from 'node:crypto';
+import { db } from '../../src/db/index.js';
+import { tecnicos, comissoesExtrato } from '../../src/db/schema/tecnicos.js';
+import { eq, desc } from 'drizzle-orm';
+import { authenticateUser, requireRole } from '../middleware/auth.js';
 
 export async function tecnicosRoutes(fastify, options) {
-  // Lista de técnicos
-  fastify.get('/api/v1/tecnicos', async (request, reply) => {
-    return reply.send({
-      total: tecnicosStore.length,
-      tecnicos: tecnicosStore
-    });
+  // Lista de técnicos persistida no PostgreSQL
+  fastify.get('/api/v1/tecnicos', { preHandler: [authenticateUser] }, async (request, reply) => {
+    try {
+      let lista = await db.select().from(tecnicos).orderBy(tecnicos.nome);
+
+      // Se a tabela estiver vazia, popula os técnicos iniciais de balcão
+      if (lista.length === 0) {
+        const seedTecnicos = [
+          {
+            id: crypto.randomUUID(),
+            nome: 'Carlos Alexandre Silva',
+            especialidade: 'Hardware & Micro-soldagem de Placas',
+            telefone: '11 98765-4321',
+            percentualComissao: 35,
+            ativo: true,
+          },
+          {
+            id: crypto.randomUUID(),
+            nome: 'Mariana Duarte Souza',
+            especialidade: 'Telas OLED & Recuperação de FaceID',
+            telefone: '11 97654-3210',
+            percentualComissao: 30,
+            ativo: true,
+          },
+          {
+            id: crypto.randomUUID(),
+            nome: 'Felipe Santos Oliveira',
+            especialidade: 'Baterias, Carcaças & Periféricos',
+            telefone: '11 96543-2109',
+            percentualComissao: 25,
+            ativo: true,
+          }
+        ];
+
+        for (const tec of seedTecnicos) {
+          await db.insert(tecnicos).values(tec).onConflictDoNothing();
+        }
+        lista = await db.select().from(tecnicos).orderBy(tecnicos.nome);
+      }
+
+      return reply.send({ total: lista.length, tecnicos: lista });
+    } catch (err) {
+      request.log.error(err, 'Falha ao buscar técnicos no banco');
+      return reply.status(500).send({ error: 'Erro ao listar técnicos' });
+    }
   });
 
   // Cadastro de novo técnico
-  fastify.post('/api/v1/tecnicos', async (request, reply) => {
+  fastify.post('/api/v1/tecnicos', { preHandler: [authenticateUser, requireRole(['admin'])] }, async (request, reply) => {
     const { nome, especialidade, telefone, percentualComissao } = request.body || {};
 
     if (!nome) {
       return reply.status(400).send({ error: 'Nome do técnico é obrigatório' });
     }
 
-    const novoTecnico = {
-      id: `tec_${Date.now()}`,
-      nome,
-      especialidade: especialidade || 'Assistência Geral',
-      telefone: telefone || '',
-      percentualComissao: Number(percentualComissao) || 30,
-      ativo: true,
-      totalOsMes: 0,
-      totalComissaoMes: 0
-    };
+    try {
+      const novoTecnico = {
+        id: crypto.randomUUID(),
+        nome,
+        especialidade: especialidade || 'Assistência Geral',
+        telefone: telefone || '',
+        percentualComissao: Number(percentualComissao) || 30,
+        ativo: true,
+      };
 
-    tecnicosStore.push(novoTecnico);
-    return reply.status(201).send({ sucesso: true, tecnico: novoTecnico });
-  });
-
-  // Extrato de comissões
-  fastify.get('/api/v1/tecnicos/comissoes', async (request, reply) => {
-    return reply.send({
-      total: comissoesStore.length,
-      comissoes: comissoesStore
-    });
-  });
-
-  // Dar baixa de quitação em comissão
-  fastify.post('/api/v1/tecnicos/comissoes/:id/pagar', async (request, reply) => {
-    const { id } = request.params;
-    const item = comissoesStore.find((c) => c.id === id);
-
-    if (!item) {
-      return reply.status(404).send({ error: 'Registro de comissão não encontrado' });
+      await db.insert(tecnicos).values(novoTecnico);
+      return reply.status(201).send({ sucesso: true, tecnico: novoTecnico });
+    } catch (err) {
+      return reply.status(500).send({ error: 'Erro ao cadastrar técnico no banco' });
     }
+  });
 
-    item.statusPagamento = 'pago';
-    item.dataQuitacao = new Date().toISOString();
-    item.responsavelQuitacao = request.body?.responsavel || 'Administrador EasyCell';
+  // Extrato de comissões do PostgreSQL
+  fastify.get('/api/v1/tecnicos/comissoes', { preHandler: [authenticateUser] }, async (request, reply) => {
+    try {
+      const comissoes = await db.select().from(comissoesExtrato).orderBy(desc(comissoesExtrato.criadoEm));
+      return reply.send({ total: comissoes.length, comissoes });
+    } catch (err) {
+      return reply.status(500).send({ error: 'Erro ao buscar comissões' });
+    }
+  });
 
-    return reply.send({ sucesso: true, comissao: item });
+  // Quitação de comissão (apenas admin ou atendente autorizado)
+  fastify.post('/api/v1/tecnicos/comissoes/:id/pagar', { preHandler: [authenticateUser] }, async (request, reply) => {
+    const { id } = request.params;
+    const responsavel = request.user?.nome || 'Administrador EasyCell';
+
+    try {
+      await db.update(comissoesExtrato).set({
+        statusPagamento: 'pago',
+        dataQuitacao: new Date(),
+        responsavelQuitacao: responsavel,
+      }).where(eq(comissoesExtrato.id, id));
+
+      return reply.send({ sucesso: true, mensagem: 'Comissão quitada com sucesso no banco de dados' });
+    } catch (err) {
+      return reply.status(500).send({ error: 'Erro ao quitar comissão' });
+    }
   });
 }

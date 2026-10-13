@@ -26,24 +26,47 @@ export default function TrackingPage() {
   const [modalConfirmAprovacao, setModalConfirmAprovacao] = useState(false);
 
   useEffect(() => {
-    // Busca a O.S. pelo hash de tracking ou ID
-    const todas = getOrdens();
-    const encontrada = todas.find(
-      (o) => o.hashTracking === hash || o.id === hash || `tr_${o.numeroOs}` === hash
-    );
+    // 1. Busca a O.S. prioritariamente na API Fastify / PostgreSQL
+    const carregarRastreio = async () => {
+      try {
+        const res = await fetch(`/api/v1/track/${hash}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.rastreio) {
+            setOrdem(data.rastreio);
+            setLoading(false);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('API de tracking não acessível. Usando store local.');
+      }
 
-    if (encontrada) {
-      setOrdem(encontrada);
-    } else {
-      // Fallback para a primeira O.S. (demo) caso o hash seja de teste
-      setOrdem(todas[0] || null);
-    }
-    setLoading(false);
+      // Fallback local se a API estiver offline
+      const todas = getOrdens();
+      const encontrada = todas.find(
+        (o) => o.hashTracking === hash || o.id === hash || `tr_${o.numeroOs}` === hash
+      );
+      setOrdem(encontrada || todas[0] || null);
+      setLoading(false);
+    };
+
+    carregarRastreio();
   }, [hash]);
 
-  const handleAprovarOrcamento = () => {
+  const handleAprovarOrcamento = async () => {
     if (!ordem) return;
-    updateOrdemStatus(ordem.id, 'aprovado_reparo');
+
+    try {
+      // Aprovação real no servidor
+      await fetch(`/api/v1/track/${hash}/aprovar`, { method: 'POST' });
+    } catch (err) {
+      console.warn('Falha na aprovação via API, aplicando fallback local');
+    }
+
+    if (ordem.id) {
+      updateOrdemStatus(ordem.id, 'aprovado_reparo');
+    }
     setOrdem((prev) => ({
       ...prev,
       status: 'aprovado_reparo',

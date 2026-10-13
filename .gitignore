@@ -31,3 +31,7 @@ dist-ssr
 !.env.example
 *.pem
 *.key
+
+# Local Storage & Uploads
+storage/
+uploads/
