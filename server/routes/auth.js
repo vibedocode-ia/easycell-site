@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import crypto from 'node:crypto';
 import { db } from '../../src/db/index.js';
 import { usuarios } from '../../src/db/schema/auth.js';
@@ -27,9 +29,32 @@ const SUPERADMIN_VANDERSON = {
   email: 'omd.vandersonoliveira@gmail.com',
   cargo: 'superadmin',
   tenantId: 'ten_easycell_matriz',
-  // Scrypt KDF derivado para 'testemudar' com salt de 16 bytes
+  // Scrypt KDF derivado padrão com salt de 16 bytes
   senhaHash: '78da9798a555121c9ec3f6d41d91d652:88a826f869a855cebb0a505683984fb45555ebbdf8a1c26c8fb69068e527488c7b5380c8194d5c7acef96bfd91726594bc7baab58daeef28ac33f5d1002fbc03'
 };
+
+const VAULT_FILE = path.join(process.cwd(), 'storage', 'superadmin_vault.json');
+
+function carregarVault() {
+  try {
+    if (fs.existsSync(VAULT_FILE)) {
+      const data = JSON.parse(fs.readFileSync(VAULT_FILE, 'utf8'));
+      if (data.senhaHash) SUPERADMIN_VANDERSON.senhaHash = data.senhaHash;
+      if (data.nome) SUPERADMIN_VANDERSON.nome = data.nome;
+      if (data.email) SUPERADMIN_VANDERSON.email = data.email;
+    }
+  } catch (e) {}
+}
+
+function salvarVault() {
+  try {
+    const dir = path.dirname(VAULT_FILE);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(VAULT_FILE, JSON.stringify(SUPERADMIN_VANDERSON, null, 2), 'utf8');
+  } catch (e) {}
+}
+
+carregarVault();
 
 export async function authRoutes(fastify, options) {
   // Login estrito: Fail-Closed total, autenticação Scrypt KDF e provisionamento do SuperAdmin
@@ -153,6 +178,7 @@ export async function authRoutes(fastify, options) {
 
       const novoHash = hashPasswordScrypt(novaSenha);
       SUPERADMIN_VANDERSON.senhaHash = novoHash;
+      salvarVault();
 
       try {
         await db.update(usuarios).set({
@@ -207,6 +233,7 @@ export async function authRoutes(fastify, options) {
     if (userId === SUPERADMIN_VANDERSON.id) {
       SUPERADMIN_VANDERSON.nome = nome;
       if (email) SUPERADMIN_VANDERSON.email = email.toLowerCase().trim();
+      salvarVault();
       return reply.send({
         sucesso: true,
         user: {

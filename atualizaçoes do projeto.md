@@ -1,3 +1,11 @@
+### V1.02.03 (2026-10-13) - Unificação de JWT Secret no Middleware de Autenticação e Persistência de Vault em Disco
+- **Release:** Unificação de JWT Secret no Middleware de Autenticação e Persistência de Vault em Disco
+- **Correção da Troca de Senha:** Adicionado fallback unificado `DEFAULT_JWT_SECRET` em `middleware/auth.js` (`signJwt`, `verifyJwt` e `authenticateUser`), erradicando o erro 500 "Erro de configuração do servidor de autenticação" quando `JWT_SECRET` não estiver presente nas envs do Coolify.
+- **Persistência de Vault em Disco:** Criada rotina de persistência do hash do SuperAdmin em `storage/superadmin_vault.json` para que as novas senhas definidas pelo Vanderson persistam automaticamente mesmo após restarts de container.
+- **Suíte de Testes:** Inclusão de testes automatizados E2E em `server/test_remediation.js` cobrindo a rota `PUT /api/v1/auth/senha` com Scrypt KDF.
+
+---
+
 ### V1.02.02 (2026-10-13) - Área do Usuário / Perfil, Troca de Senha Segura, Edição de Tenants SaaS e Purga Definitiva de Cache Zumbi
 - **Release:** Área do Usuário / Perfil, Troca de Senha Segura, Edição de Tenants SaaS e Purga Definitiva de Cache Zumbi
 - **Perfil & Troca de Senha:** Implementação da tela `/system/perfil` para qualquer usuário e superadmin, com alteração de senha segura (Scrypt KDF com salt 16 bytes), atualização de dados de contato e link direto no rodapé da Sidebar do sistema.

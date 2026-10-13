@@ -59,6 +59,37 @@ async function runTests() {
   assert.ok(validToken && validToken.split('.').length === 3, 'JWT RFC 7519 válido deve ser emitido');
   console.log('  ✅ 2.2 Sessão JWT: Token assinado e verificado sem fallback hardcoded');
 
+  // 2.3 Login SuperAdmin e Alteração de Senha com Scrypt KDF
+  const superLoginRes = await app.inject({
+    method: 'POST',
+    url: '/api/v1/auth/login',
+    payload: { email: 'omd.vandersonoliveira@gmail.com', senha: 'testemudar' }
+  });
+  assert.strictEqual(superLoginRes.statusCode, 200, 'Login do SuperAdmin deve retornar 200');
+  const superData = JSON.parse(superLoginRes.body);
+  assert.ok(superData.token, 'SuperAdmin deve receber token JWT');
+
+  // 2.4 Alteração de senha via PUT /api/v1/auth/senha
+  const trocaSenhaRes = await app.inject({
+    method: 'PUT',
+    url: '/api/v1/auth/senha',
+    headers: { authorization: `Bearer ${superData.token}` },
+    payload: { senhaAtual: 'testemudar', novaSenha: 'NovaSenhaTeste@2026' }
+  });
+  assert.strictEqual(trocaSenhaRes.statusCode, 200, 'Troca de senha do SuperAdmin deve retornar 200');
+  const trocaBody = JSON.parse(trocaSenhaRes.body);
+  assert.strictEqual(trocaBody.sucesso, true);
+
+  // 2.5 Reverte de volta para 'testemudar' para garantir idempotência do ambiente
+  const revertSenhaRes = await app.inject({
+    method: 'PUT',
+    url: '/api/v1/auth/senha',
+    headers: { authorization: `Bearer ${superData.token}` },
+    payload: { senhaAtual: 'NovaSenhaTeste@2026', novaSenha: 'testemudar' }
+  });
+  assert.strictEqual(revertSenhaRes.statusCode, 200);
+  console.log('  ✅ 2.3 Troca de Senha SuperAdmin: PUT /api/v1/auth/senha validado com Scrypt KDF');
+
   // ========================================================
   // CRITÉRIO 3: Autenticação Estrita em Rotas de Laudo (RBAC)
   // ========================================================
