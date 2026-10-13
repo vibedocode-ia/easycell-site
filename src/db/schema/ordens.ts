@@ -19,6 +19,8 @@ export const senhaTipoEnum = pgEnum('senha_tipo', [
 
 export const ordensServico = pgTable('ordens_servico', {
   id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: text('tenant_id').default('ten_easycell_matriz').notNull(),
+  lojaId: text('loja_id').default('loj_matriz_centro'),
   numeroOs: integer('numero_os').notNull().unique(), // Serial sequencial de balcão (#1001)
   clienteId: uuid('cliente_id').references(() => clientes.id).notNull(),
   tecnicoId: uuid('tecnico_id').references(() => usuarios.id),

@@ -4,3 +4,4 @@ export * from './ordens';
 export * from './estoque';
 export * from './automacoes';
 export * from './tecnicos';
+export * from './tenants';

@@ -304,17 +304,12 @@ export const easyCellStore = {
     return created;
   },
 
-  // Fase 2: Laudo Pericial em PDF & SHA-256
-  generateLaudoPdf: (orderId) => {
+  // Fase 2/3: Registro do Laudo Pericial em PDF & SHA-256 Criptográfico Real
+  setLaudoPdf: (orderId, pdfUrl, hash) => {
     const orders = easyCellStore.getOrders();
     let updatedOrder = null;
     const updated = orders.map((o) => {
       if (o.id === orderId || String(o.numeroOs) === String(orderId)) {
-        let hash = '';
-        for (let i = 0; i < 64; i++) {
-          hash += '0123456789abcdef'[Math.floor(Math.random() * 16)];
-        }
-        const pdfUrl = `https://easycell.vibedocode.pro/docs/laudos/laudo-os-${o.numeroOs}-${hash.substring(0, 8)}.pdf`;
         updatedOrder = {
           ...o,
           laudoPdfUrl: pdfUrl,
@@ -327,6 +322,10 @@ export const easyCellStore = {
     });
     localStorage.setItem(OS_STORAGE_KEY, JSON.stringify(updated));
     return updatedOrder;
+  },
+
+  generateLaudoPdf: (orderId, pdfUrl = '', hash = '') => {
+    return easyCellStore.setLaudoPdf(orderId, pdfUrl || `/api/v1/laudos/${orderId}/download`, hash);
   },
 
   // Fase 2: Atribuição de Técnico na Bancada

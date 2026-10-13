@@ -11,6 +11,8 @@ export const estoqueTipoEnum = pgEnum('estoque_tipo', [
 
 export const estoqueItens = pgTable('estoque_itens', {
   id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: text('tenant_id').default('ten_easycell_matriz').notNull(),
+  lojaId: text('loja_id').default('loj_matriz_centro'),
   codigo: text('codigo').unique(),
   nome: text('nome').notNull(),
   tipo: estoqueTipoEnum('tipo').default('peca_reposicao').notNull(),
@@ -45,6 +47,8 @@ export const osItens = pgTable('os_itens', {
 // Movimentações financeiras de caixa do dia
 export const caixaMovimentacoes = pgTable('caixa_movimentacoes', {
   id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: text('tenant_id').default('ten_easycell_matriz').notNull(),
+  lojaId: text('loja_id').default('loj_matriz_centro'),
   ordemId: uuid('ordem_id').references(() => ordensServico.id),
   tipo: text('tipo').notNull(), // 'entrada_os', 'adiantamento_os', 'venda_avulsa', 'sangria'
   descricao: text('descricao').notNull(),

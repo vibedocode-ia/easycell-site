@@ -95,16 +95,57 @@ export default function DetalhesOsPage() {
     setModalQuitacao(false);
   };
 
-  const handleGerarLaudo = () => {
+  const handleGerarLaudo = async () => {
     setLaudoGerando(true);
-    setTimeout(() => {
-      const updated = easyCellStore.generateLaudoPdf(ordem.id);
-      if (updated) {
-        setOrdem(updated);
+    const savedToken = localStorage.getItem('easycell_token');
+
+    try {
+      const res = await fetch('/api/v1/laudos/generate-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(savedToken ? { Authorization: `Bearer ${savedToken}` } : {})
+        },
+        body: JSON.stringify({
+          numeroOs: ordem.numeroOs,
+          clienteNome: ordem.clienteNome,
+          clienteWhatsapp: ordem.clienteWhatsapp,
+          aparelhoMarca: ordem.aparelhoMarca,
+          aparelhoModelo: ordem.aparelhoModelo,
+          defeitoRelatado: ordem.defeitoRelatado,
+          diagnosticoTecnico: ordem.diagnosticoTecnico,
+          laudoConclusao: ordem.laudoConclusao,
+          valorPecas: ordem.valorPecas,
+          valorMaoDeObra: ordem.valorMaoDeObra,
+          valorTotal: ordem.valorTotal,
+          tecnicoNome: ordem.tecnicoNome || 'Técnico Responsável',
+          laudoFotos: ordem.laudoFotos,
+          checklistEntrada: ordem.checklistEntrada
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const updated = easyCellStore.setLaudoPdf(ordem.id, data.downloadUrl, data.sha256);
+        if (updated) {
+          setOrdem(updated);
+        } else {
+          setOrdem({
+            ...ordem,
+            laudoPdfUrl: data.downloadUrl,
+            laudoPdfHash: data.sha256
+          });
+        }
+        setModalLaudoPdf(true);
+      } else {
+        alert('Falha ao gerar laudo no servidor. Verifique a sessão.');
       }
+    } catch (err) {
+      console.error('Erro ao conectar com API de laudos:', err);
+      alert('Serviço de laudos indisponível no momento.');
+    } finally {
       setLaudoGerando(false);
-      setModalLaudoPdf(true);
-    }, 500);
+    }
   };
 
   const dotsArray = ordem.senhaTipo === 'padrao_pontos' && ordem.senhaValor

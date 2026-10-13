@@ -5,6 +5,8 @@ import { ordensServico } from './ordens';
 // Tabela de Perfil Técnico e Taxa de Comissionamento
 export const tecnicos = pgTable('tecnicos', {
   id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: text('tenant_id').default('ten_easycell_matriz').notNull(),
+  lojaId: text('loja_id').default('loj_matriz_centro'),
   usuarioId: uuid('usuario_id').references(() => usuarios.id),
   nome: text('nome').notNull(),
   especialidade: text('especialidade').default('Hardware & Placas').notNull(),
@@ -17,6 +19,8 @@ export const tecnicos = pgTable('tecnicos', {
 // Tabela de Extrato de Comissões por O.S. Finalizada
 export const comissoesExtrato = pgTable('comissoes_extrato', {
   id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: text('tenant_id').default('ten_easycell_matriz').notNull(),
+  lojaId: text('loja_id').default('loj_matriz_centro'),
   ordemId: uuid('ordem_id').references(() => ordensServico.id).notNull(),
   tecnicoId: uuid('tecnico_id').references(() => tecnicos.id).notNull(),
   valorMaoDeObra: integer('valor_mao_de_obra').notNull(), // Em centavos

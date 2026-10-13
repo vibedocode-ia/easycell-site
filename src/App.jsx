@@ -17,6 +17,8 @@ import TrackingPage from './pages/tracking/TrackingPage';
 import AutomacoesPage from './pages/system/AutomacoesPage';
 import TecnicosPage from './pages/system/TecnicosPage';
 import ConfiguracoesPage from './pages/system/ConfiguracoesPage';
+import LojasPage from './pages/system/LojasPage';
+import AdminSaasPage from './pages/admin/AdminSaasPage';
 
 export default function App() {
   return (
@@ -44,6 +46,14 @@ export default function App() {
               <Route path="automacoes" element={<AutomacoesPage />} />
               <Route path="tecnicos" element={<TecnicosPage />} />
               <Route path="configuracoes" element={<ConfiguracoesPage />} />
+              <Route path="lojas" element={<LojasPage />} />
+            </Route>
+          </Route>
+
+          {/* Rota do Super Admin SaaS */}
+          <Route path="/admin/saas" element={<ProtectedRoute />}>
+            <Route element={<SystemLayout />}>
+              <Route index element={<AdminSaasPage />} />
             </Route>
           </Route>
 

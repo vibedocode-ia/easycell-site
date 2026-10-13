@@ -1,9 +1,11 @@
 import { pgTable, uuid, text, timestamp, pgEnum } from 'drizzle-orm/pg-core';
 
-export const userRoleEnum = pgEnum('user_role', ['admin', 'atendente', 'tecnico']);
+export const userRoleEnum = pgEnum('user_role', ['admin', 'atendente', 'tecnico', 'superadmin']);
 
 export const usuarios = pgTable('usuarios', {
   id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: text('tenant_id'), // null para superadmin global da plataforma
+  lojaId: text('loja_id'),
   nome: text('nome').notNull(),
   email: text('email').notNull().unique(),
   senhaHash: text('senha_hash').notNull(),

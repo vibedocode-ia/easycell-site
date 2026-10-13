@@ -28,12 +28,11 @@ export default function ConfiguracoesPage() {
     garantiaDiasPadrao: '90',
     termoGarantiaTexto: `Garantia legal de 90 (noventa) dias para peças substituídas e serviços executados, nos termos do Art. 26 do Código de Defesa do Consumidor. A garantia cobre exclusivamente o componente reparado e não abrange danos causados por quedas posteriores, oxidação/contato com líquidos, choque elétrico ou intervenção técnica não autorizada por terceiros.`,
     termoAbandonoTexto: `Em conformidade com os artigos 1.275 e 1.276 do Código Civil Brasileiro, os aparelhos reparados ou com orçamento recusado não retirados pelo cliente no prazo de 90 (noventa) dias após notificação expressa via WhatsApp/SMS serão considerados abandonados para fins de custeio de armazenagem e descarte ecologicamente correto.`,
-    apiKey: 'easycell_live_sec_8f93e2b10a9c84712034',
-    webhookSecret: 'sofia_wh_sec_991823abce1289'
+    apiKeyMasked: '••••••••••••••••••••••••••••••••'
   });
 
   const handleCopyKey = () => {
-    navigator.clipboard.writeText(formData.apiKey);
+    navigator.clipboard.writeText('Bearer configurado_em_variavel_de_ambiente');
     setCopiedKey(true);
     setTimeout(() => setCopiedKey(false), 2000);
   };
@@ -190,7 +189,7 @@ export default function ConfiguracoesPage() {
             <div>
               <label className="text-[11px] font-sans text-slate-400 block mb-1">URL Base da API Backend</label>
               <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl text-cyan-400 flex items-center justify-between">
-                <span>https://api.easycell.vibedocode.pro</span>
+                <span>https://easycell.vibedocode.pro</span>
                 <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                   Online
                 </span>
@@ -215,7 +214,7 @@ export default function ConfiguracoesPage() {
             <div>
               <label className="text-[11px] font-sans text-slate-400 block mb-1">Webhook Inbound Cadastrado no SofIA</label>
               <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl text-slate-400">
-                https://api.easycell.vibedocode.pro/api/v1/whatsapp/webhook
+                https://easycell.vibedocode.pro/api/v1/whatsapp/webhook
               </div>
             </div>
           </div>

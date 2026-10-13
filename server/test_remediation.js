@@ -194,7 +194,82 @@ async function runTests() {
   assert.strictEqual(aprovaRes.statusCode, 200);
   console.log('  ✅ 5.2 Aprovação Server-Side: Status aprovado_reparo registrado no servidor');
 
-  console.log('\n🎯 [SUCESSO TOTAL] Todos os 5 critérios de bloqueio do Hermes foram remediados e testados com sucesso absoluto!\n');
+  // ========================================================
+  // CRITÉRIO 6: Isolamento Multi-Tenant & Mapeamento Estrito WhatsApp
+  // ========================================================
+  console.log('\n▶ Testando Critério 6: Isolamento Multi-Tenant (Tenant A vs Tenant B)...');
+
+  // 6.1 Tokens de dois tenants distintos
+  const tokenTenantA = signJwt({ id: 'usr_alpha', email: 'admin@alpha.com', cargo: 'admin', tenantId: 'ten_alpha' }, process.env.JWT_SECRET);
+  const tokenTenantB = signJwt({ id: 'usr_beta', email: 'admin@beta.com', cargo: 'admin', tenantId: 'ten_beta' }, process.env.JWT_SECRET);
+
+  // 6.2 Tenant A cria uma O.S.
+  const osTenantARes = await app.inject({
+    method: 'POST',
+    url: '/api/v1/os',
+    headers: { Authorization: `Bearer ${tokenTenantA}`, 'x-tenant-id': 'ten_alpha' },
+    payload: {
+      clienteNome: 'Cliente Alpha Confidencial',
+      clienteTelefone: '11911112222',
+      aparelhoMarca: 'Apple',
+      aparelhoModelo: 'iPhone 15 Pro Max',
+      defeitoRelatado: 'Placa em curto',
+      valorPecas: 50000,
+      valorMaoDeObra: 20000
+    }
+  });
+  assert.strictEqual(osTenantARes.statusCode, 201);
+  const osTenantA = JSON.parse(osTenantARes.body).ordem;
+  assert.strictEqual(osTenantA.tenantId, 'ten_alpha');
+  console.log('  ✅ 6.1 Criação Tenant-Aware: O.S. criada com tenantId estrito (ten_alpha)');
+
+  // 6.3 Teste Negativo Cross-Tenant: Tenant B tenta acessar O.S. do Tenant A
+  const crossTenantGetRes = await app.inject({
+    method: 'GET',
+    url: `/api/v1/os/${osTenantA.id}`,
+    headers: { Authorization: `Bearer ${tokenTenantB}`, 'x-tenant-id': 'ten_beta' }
+  });
+  assert.strictEqual(crossTenantGetRes.statusCode, 404, 'Tenant B NÃO DEVE localizar O.S. pertencente ao Tenant A');
+  console.log('  ✅ 6.2 Isolamento de Leitura: Tenant B bloqueado de visualizar O.S. do Tenant A (HTTP 404)');
+
+  // 6.4 Teste Negativo Cross-Tenant: Tenant B tenta enviar header ten_alpha com token ten_beta
+  const crossTenantHeaderRes = await app.inject({
+    method: 'GET',
+    url: '/api/v1/os',
+    headers: { Authorization: `Bearer ${tokenTenantB}`, 'x-tenant-id': 'ten_alpha' }
+  });
+  assert.strictEqual(crossTenantHeaderRes.statusCode, 403, 'Tentativa de spoofing cross-tenant DEVE retornar 403');
+  console.log('  ✅ 6.3 Bloqueio de Spoofing: Tentativa de forçar header de outro inquilino bloqueada com HTTP 403');
+
+  // 6.5 Webhook WhatsApp: Remetente Desconhecido NÃO altera nenhuma O.S.
+  const whDesconhecidoRes = await app.inject({
+    method: 'POST',
+    url: '/api/v1/whatsapp/webhook',
+    headers: { 'x-webhook-secret': process.env.SOFIA_WEBHOOK_SECRET, 'x-tenant-id': 'ten_alpha' },
+    payload: {
+      mensagemId: `msg_unknown_${Date.now()}`,
+      remetente: '5511999990000',
+      mensagem: '1'
+    }
+  });
+  assert.strictEqual(whDesconhecidoRes.statusCode, 200);
+  const whDescBody = JSON.parse(whDesconhecidoRes.body);
+  assert.strictEqual(whDescBody.acaoTomada, 'remetente_desconhecido');
+  assert.strictEqual(whDescBody.osIdAfetada, null, 'Nenhuma O.S. deve ser afetada por remetente desconhecido');
+  console.log('  ✅ 6.4 Webhook Sem Aprovação em Massa: Remetente desconhecido não altera nenhuma O.S.');
+
+  // 6.6 Healthcheck Real Probe
+  const healthRes = await app.inject({
+    method: 'GET',
+    url: '/api/v1/health'
+  });
+  assert.ok([200, 503].includes(healthRes.statusCode));
+  const healthBody = JSON.parse(healthRes.body);
+  assert.ok(healthBody.versao, 'Healthcheck deve conter campo versao dinâmico');
+  assert.ok(healthBody.banco, 'Healthcheck deve conter probe real do banco');
+  console.log(`  ✅ 6.5 Healthcheck Ativo: Status ${healthBody.status} reportado com probe de banco`);
+
+  console.log('\n🎯 [SUCESSO TOTAL] Todos os critérios das Fases 1, 2 e 3 foram verificados e aprovados com rigor Zero-Trust!\n');
   await app.close();
   process.exit(0);
 }
@@ -203,3 +278,4 @@ runTests().catch((err) => {
   console.error('❌ Falha na execução dos testes:', err);
   process.exit(1);
 });
+

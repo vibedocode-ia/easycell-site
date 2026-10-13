@@ -4,6 +4,8 @@ import { ordensServico } from './ordens';
 // Tabela de Logs e Mensagens de WhatsApp (Auditoria e Idempotência)
 export const whatsappLogs = pgTable('whatsapp_logs', {
   id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: text('tenant_id').default('ten_easycell_matriz').notNull(),
+  lojaId: text('loja_id').default('loj_matriz_centro'),
   ordemId: uuid('ordem_id').references(() => ordensServico.id),
   destinatario: text('destinatario').notNull(),
   direcao: text('direcao').notNull(), // 'outbound' (disparo) ou 'inbound' (resposta do cliente)

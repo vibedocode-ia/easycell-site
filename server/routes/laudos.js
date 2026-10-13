@@ -112,6 +112,12 @@ export async function laudosRoutes(fastify, options) {
       // 3. Salva no sistema de arquivos persistente
       const fileName = `laudo-os-${num}-${sha256Hash.substring(0, 8)}.pdf`;
       const filePath = path.join(STORAGE_DIR, fileName);
+      // Limpa versões anteriores de PDF da mesma OS no storage para unicidade pericial
+      const existingFiles = fs.readdirSync(STORAGE_DIR);
+      existingFiles.filter(f => f.startsWith(`laudo-os-${num}-`)).forEach(oldFile => {
+        try { fs.unlinkSync(path.join(STORAGE_DIR, oldFile)); } catch {}
+      });
+
       fs.writeFileSync(filePath, pdfBuffer);
 
       const downloadUrl = `/api/v1/laudos/${num}/download`;

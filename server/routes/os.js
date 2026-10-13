@@ -2,30 +2,42 @@ import crypto from 'node:crypto';
 import { db } from '../../src/db/index.js';
 import { ordensServico } from '../../src/db/schema/ordens.js';
 import { clientes } from '../../src/db/schema/clientes.js';
-import { eq, desc, sql } from 'drizzle-orm';
+import { eq, and, desc, sql } from 'drizzle-orm';
 import { authenticateUser } from '../middleware/auth.js';
+import { extractTenantContext } from '../middleware/tenant.js';
 
 // Fallback em memória para execução de testes unitários sem instância Postgres ativa
 const fallbackOsStore = new Map();
 
 export async function osRoutes(fastify, options) {
-  // 1. Listagem Operacional de O.S. (Dashboard e Kanban)
-  fastify.get('/api/v1/os', { preHandler: [authenticateUser] }, async (request, reply) => {
+  // 1. Listagem Operacional de O.S. (Dashboard e Kanban) - Isolado por Tenant
+  fastify.get('/api/v1/os', { preHandler: [authenticateUser, extractTenantContext] }, async (request, reply) => {
+    const tenantId = request.tenantId || 'ten_easycell_matriz';
     try {
-      const lista = await db.select().from(ordensServico).orderBy(desc(ordensServico.criadoEm)).limit(100);
+      const lista = await db
+        .select()
+        .from(ordensServico)
+        .where(eq(ordensServico.tenantId, tenantId))
+        .orderBy(desc(ordensServico.criadoEm))
+        .limit(100);
       return reply.send({ total: lista.length, ordens: lista });
     } catch (err) {
       request.log.warn('Aviso: PostgreSQL offline. Retornando store em memória.');
-      const lista = Array.from(fallbackOsStore.values());
+      const lista = Array.from(fallbackOsStore.values()).filter(o => o.tenantId === tenantId);
       return reply.send({ total: lista.length, ordens: lista });
     }
   });
 
-  // 2. Busca de O.S. por ID
-  fastify.get('/api/v1/os/:id', { preHandler: [authenticateUser] }, async (request, reply) => {
+  // 2. Busca de O.S. por ID (Isolado por Tenant)
+  fastify.get('/api/v1/os/:id', { preHandler: [authenticateUser, extractTenantContext] }, async (request, reply) => {
     const { id } = request.params;
+    const tenantId = request.tenantId || 'ten_easycell_matriz';
     try {
-      const os = await db.select().from(ordensServico).where(eq(ordensServico.id, id)).limit(1);
+      const os = await db
+        .select()
+        .from(ordensServico)
+        .where(and(eq(ordensServico.tenantId, tenantId), eq(ordensServico.id, id)))
+        .limit(1);
       if (os.length > 0) {
         return reply.send({ ordem: os[0] });
       }
@@ -34,14 +46,16 @@ export async function osRoutes(fastify, options) {
     }
 
     const localOs = fallbackOsStore.get(id);
-    if (localOs) {
+    if (localOs && (!localOs.tenantId || localOs.tenantId === tenantId)) {
       return reply.send({ ordem: localOs });
     }
-    return reply.status(404).send({ error: 'Ordem de serviço não encontrada' });
+    return reply.status(404).send({ error: 'Ordem de serviço não encontrada para este inquilino' });
   });
 
-  // 3. Abertura de Nova O.S. Blindada
-  fastify.post('/api/v1/os', { preHandler: [authenticateUser] }, async (request, reply) => {
+  // 3. Abertura de Nova O.S. Blindada (Multi-Tenant Aware)
+  fastify.post('/api/v1/os', { preHandler: [authenticateUser, extractTenantContext] }, async (request, reply) => {
+    const tenantId = request.tenantId || 'ten_easycell_matriz';
+    const lojaId = request.lojaId || 'loj_matriz_centro';
     const body = request.body || {};
     const {
       clienteNome,
@@ -74,6 +88,8 @@ export async function osRoutes(fastify, options) {
 
     const novaOs = {
       id: novaOsId,
+      tenantId,
+      lojaId,
       numeroOs: proximoNumero,
       clienteId,
       aparelhoMarca: aparelhoMarca || 'Generico',
@@ -102,9 +118,11 @@ export async function osRoutes(fastify, options) {
     try {
       await db.insert(clientes).values({
         id: clienteId,
+        tenantId,
+        lojaId,
         nome: clienteNome,
-        telefone: clienteTelefone,
-        documento: clienteCpf || null,
+        whatsapp: clienteTelefone,
+        cpf: clienteCpf || null,
       }).onConflictDoNothing();
 
       await db.insert(ordensServico).values(novaOs);
@@ -123,9 +141,10 @@ export async function osRoutes(fastify, options) {
     });
   });
 
-  // 4. Atualização de Status da O.S.
-  fastify.put('/api/v1/os/:id/status', { preHandler: [authenticateUser] }, async (request, reply) => {
+  // 4. Atualização de Status da O.S. (Isolado por Tenant)
+  fastify.put('/api/v1/os/:id/status', { preHandler: [authenticateUser, extractTenantContext] }, async (request, reply) => {
     const { id } = request.params;
+    const tenantId = request.tenantId || 'ten_easycell_matriz';
     const { status, diagnosticoTecnico, valorPecas, valorMaoDeObra, tecnicoId } = request.body || {};
 
     const updateData = { atualizadoEm: new Date().toISOString() };
@@ -136,13 +155,16 @@ export async function osRoutes(fastify, options) {
     if (valorMaoDeObra !== undefined) updateData.valorMaoDeObra = Number(valorMaoDeObra);
 
     try {
-      await db.update(ordensServico).set(updateData).where(eq(ordensServico.id, id));
+      await db
+        .update(ordensServico)
+        .set(updateData)
+        .where(and(eq(ordensServico.tenantId, tenantId), eq(ordensServico.id, id)));
     } catch (err) {
       // fallback
     }
 
     const localOs = fallbackOsStore.get(id);
-    if (localOs) {
+    if (localOs && (!localOs.tenantId || localOs.tenantId === tenantId)) {
       Object.assign(localOs, updateData);
     }
 

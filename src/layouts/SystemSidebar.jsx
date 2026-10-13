@@ -12,7 +12,9 @@ import {
   ChevronRight,
   Bot,
   Users,
-  Settings
+  Settings,
+  Store,
+  Building2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { VERSION } from '../lib/version';
@@ -30,11 +32,13 @@ export default function SystemSidebar() {
     { label: 'Dashboard', path: '/system', icon: LayoutDashboard },
     { label: 'Nova O.S. Blindada', path: '/system/os/nova', icon: PlusCircle, highlight: true },
     { label: 'Ordens & Kanban', path: '/system/os', icon: Kanban },
+    { label: 'Filiais & Lojas', path: '/system/lojas', icon: Store },
     { label: 'Técnicos & Comissões', path: '/system/tecnicos', icon: Users },
     { label: 'Automações WhatsApp', path: '/system/automacoes', icon: Bot },
     { label: 'Estoque Triplo', path: '/system/estoque', icon: Package },
     { label: 'Frente de Caixa', path: '/system/caixa', icon: DollarSign },
     { label: 'Configurações', path: '/system/configuracoes', icon: Settings },
+    { label: 'Super Admin SaaS', path: '/admin/saas', icon: Building2 },
   ];
 
   return (
