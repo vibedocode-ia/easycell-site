@@ -1,3 +1,14 @@
+### V1.02.04 (2026-10-13) - Console Executivo SaasAdminLayout, Redirecionamento Direto do SuperAdmin e Higienização do Portal de Login
+- **Release:** Console Executivo SaasAdminLayout, Redirecionamento Direto do SuperAdmin e Higienização do Portal de Login
+- **SaasAdminLayout:** Criação do layout executivo dedicado para o Super Admin SaaS (`/admin/saas`), separando a interface administrativa de plataforma B2B da visão operacional de bancada/assistência técnica de conserto.
+- **Redirecionamento Inteligente por Cargo:** Usuário com cargo `superadmin` é direcionado diretamente para o painel de controle SaaS (`/admin/saas`) ao fazer login.
+- **Alternância Bidirecional SaaS ↔ Bancada:**
+  - No SaaS: botão em destaque no Top Header e na Sidebar para acessar o sistema com "Visão do Cliente / Bancada" (`/system`).
+  - Na Bancada: botão destacado no cabeçalho e card na sidebar permitindo retornar ao "Super Admin SaaS" com 1 clique.
+- **Higienização do Login:** Removido o botão de teste de preenchimento rápido de credenciais na tela `/admin`.
+
+---
+
 ### V1.02.03 (2026-10-13) - Unificação de JWT Secret no Middleware de Autenticação e Persistência de Vault em Disco
 - **Release:** Unificação de JWT Secret no Middleware de Autenticação e Persistência de Vault em Disco
 - **Correção da Troca de Senha:** Adicionado fallback unificado `DEFAULT_JWT_SECRET` em `middleware/auth.js` (`signJwt`, `verifyJwt` e `authenticateUser`), erradicando o erro 500 "Erro de configuração do servidor de autenticação" quando `JWT_SECRET` não estiver presente nas envs do Coolify.

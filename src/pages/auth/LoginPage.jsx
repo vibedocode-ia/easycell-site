@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Smartphone, Lock, Mail, ArrowRight, ShieldCheck, AlertCircle, Sparkles } from 'lucide-react';
+import { Smartphone, Lock, Mail, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { VERSION } from '../../lib/version';
 
@@ -9,15 +9,19 @@ export default function LoginPage() {
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
   // Redireciona imediatamente se já estiver logado
   React.useEffect(() => {
     if (isAuthenticated) {
-      navigate('/system');
+      if (user?.cargo === 'superadmin') {
+        navigate('/admin/saas');
+      } else {
+        navigate('/system');
+      }
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,7 +31,11 @@ export default function LoginPage() {
     try {
       const res = await login(email, senha);
       if (res && res.success) {
-        navigate('/system');
+        if (res.user?.cargo === 'superadmin') {
+          navigate('/admin/saas');
+        } else {
+          navigate('/system');
+        }
       } else {
         setErro(res?.message || 'Credenciais inválidas');
       }
@@ -118,20 +126,6 @@ export default function LoginPage() {
               {carregando ? 'Acessando Sistema...' : 'Entrar no Sistema'}
               <ArrowRight className="w-4 h-4" />
             </button>
-
-            <div className="pt-1">
-              <button
-                type="button"
-                onClick={() => {
-                  setEmail('omd.vandersonoliveira@gmail.com');
-                  setSenha('testemudar');
-                }}
-                className="w-full py-2.5 px-3 rounded-xl bg-slate-900/90 border border-cyan-500/30 hover:border-cyan-400/70 text-cyan-300 text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer hover:bg-slate-800/80 active:scale-95"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                Preencher Acesso SuperAdmin (Vanderson)
-              </button>
-            </div>
           </form>
 
           <div className="mt-6 pt-6 border-t border-slate-800 text-center">

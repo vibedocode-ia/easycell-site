@@ -15,7 +15,8 @@ import {
   Settings,
   Store,
   Building2,
-  User
+  User,
+  ArrowRight
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { VERSION } from '../lib/version';
@@ -23,6 +24,7 @@ import { VERSION } from '../lib/version';
 export default function SystemSidebar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const isSuperadmin = user?.cargo === 'superadmin';
 
   const handleLogout = () => {
     logout();
@@ -40,7 +42,6 @@ export default function SystemSidebar() {
     { label: 'Frente de Caixa', path: '/system/caixa', icon: DollarSign },
     { label: 'Configurações', path: '/system/configuracoes', icon: Settings },
     { label: 'Meu Perfil', path: '/system/perfil', icon: User },
-    { label: 'Super Admin SaaS', path: '/admin/saas', icon: Building2 },
   ];
 
   return (
@@ -48,7 +49,7 @@ export default function SystemSidebar() {
       <div>
         {/* Brand Header */}
         <div className="h-20 flex items-center px-6 border-b border-slate-800/80">
-          <NavLink to="/system" className="flex items-center space-x-3 group">
+          <NavLink to={isSuperadmin ? "/admin/saas" : "/system"} className="flex items-center space-x-3 group">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 border border-cyan-300/40">
               <Smartphone className="w-5 h-5 text-white" />
             </div>
@@ -56,15 +57,40 @@ export default function SystemSidebar() {
               <span className="text-xl font-black tracking-tight text-white flex items-center gap-0.5 font-mono">
                 Easy<span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Cell</span>
               </span>
-              <span className="text-[9px] uppercase font-bold tracking-widest text-cyan-400 -mt-1">Painel Operacional</span>
+              <span className="text-[9px] uppercase font-bold tracking-widest text-cyan-400 -mt-1">
+                {isSuperadmin ? 'Visão da Bancada' : 'Painel Operacional'}
+              </span>
             </div>
           </NavLink>
         </div>
 
+        {/* Card Destaque: Retorno ao Super Admin SaaS se logado como SuperAdmin */}
+        {isSuperadmin && (
+          <div className="p-4 pb-1">
+            <NavLink
+              to="/admin/saas"
+              className="flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-cyan-950/70 via-slate-900 to-slate-900 border border-cyan-500/40 hover:border-cyan-400 group transition-all shadow-md shadow-cyan-500/5 hover:scale-[1.02] cursor-pointer"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center border border-cyan-500/30 group-hover:bg-cyan-500/25">
+                  <Building2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs font-black text-white group-hover:text-cyan-300 flex items-center gap-1">
+                    Super Admin SaaS
+                    <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform text-cyan-400" />
+                  </div>
+                  <div className="text-[10px] text-cyan-400 font-mono">Controle da Plataforma</div>
+                </div>
+              </div>
+            </NavLink>
+          </div>
+        )}
+
         {/* Navigation Links */}
         <nav className="p-4 space-y-1.5">
           <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
-            Navegação Principal
+            {isSuperadmin ? 'Menu da Assistência (Visão Cliente)' : 'Navegação Principal'}
           </div>
           {navItems.map((item) => {
             const Icon = item.icon;

@@ -2,9 +2,13 @@ import React from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import SystemSidebar from './SystemSidebar';
 import StoreSelector from '../components/StoreSelector';
-import { PlusCircle, Search, Bell } from 'lucide-react';
+import { PlusCircle, Search, Building2, ArrowLeft, Sparkles } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export default function SystemLayout() {
+  const { user } = useAuth();
+  const isSuperadmin = user?.cargo === 'superadmin';
+
   return (
     <div className="flex min-h-screen bg-[#030611] text-slate-100 font-sans selection:bg-cyan-500 selection:text-black">
       {/* Sidebar Fixa Lateral */}
@@ -28,6 +32,18 @@ export default function SystemLayout() {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Banner/Botão para SuperAdmin alternar de volta ao controle SaaS */}
+            {isSuperadmin && (
+              <NavLink
+                to="/admin/saas"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-500/15 via-blue-600/15 to-indigo-600/10 border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 font-bold text-xs transition-all shadow-md shadow-cyan-500/5 active:scale-95 cursor-pointer group"
+                title="Voltar ao Painel Master de Gestão da Plataforma SaaS"
+              >
+                <Building2 className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
+                <span>← Voltar ao Super Admin SaaS</span>
+              </NavLink>
+            )}
+
             <NavLink
               to="/system/os/nova"
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs transition-all shadow-md shadow-cyan-500/20 active:scale-95"

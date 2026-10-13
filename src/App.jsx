@@ -7,6 +7,7 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import LandingPage from './pages/landing/LandingPage';
 import LoginPage from './pages/auth/LoginPage';
 import SystemLayout from './layouts/SystemLayout';
+import SaasAdminLayout from './layouts/SaasAdminLayout';
 import DashboardPage from './pages/system/DashboardPage';
 import NovaOsPage from './pages/system/NovaOsPage';
 import KanbanPage from './pages/system/KanbanPage';
@@ -54,7 +55,7 @@ export default function App() {
 
           {/* Rota do Super Admin SaaS */}
           <Route path="/admin/saas" element={<ProtectedRoute />}>
-            <Route element={<SystemLayout />}>
+            <Route element={<SaasAdminLayout />}>
               <Route index element={<AdminSaasPage />} />
             </Route>
           </Route>
