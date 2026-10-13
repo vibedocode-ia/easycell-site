@@ -11,6 +11,51 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <script>
+      // EasyCell Anti-Cache & Auto-Recovery Protocol (V1.02.01)
+      (function() {
+        var APP_VERSION = 'V1.02.01';
+        try {
+          var lastVer = localStorage.getItem('easycell_current_version');
+          if (lastVer !== APP_VERSION) {
+            localStorage.setItem('easycell_current_version', APP_VERSION);
+            // Sanitiza possíveis sessões corrompidas de versões legadas
+            var u = localStorage.getItem('easycell_user');
+            if (u === 'undefined' || u === 'null' || u === '[object Object]') {
+              localStorage.removeItem('easycell_user');
+            }
+          }
+        } catch (e) {}
+
+        // Desregistra Service Workers legados que possam reter cache antigo
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            registrations.forEach(function(r) { r.unregister(); });
+          });
+        }
+
+        // Recupera tela branca se o navegador tentar carregar scripts 404 de versões antigas
+        window.addEventListener('error', function(e) {
+          var target = e.target;
+          if (target && (target.tagName === 'SCRIPT' || target.tagName === 'LINK')) {
+            var url = target.src || target.href || '';
+            if (url.indexOf('/assets/') !== -1) {
+              console.warn('[EasyCell Anti-Cache] Asset antigo não localizado:', url);
+              var reloadKey = 'easycell_recovered_' + APP_VERSION;
+              if (!sessionStorage.getItem(reloadKey)) {
+                sessionStorage.setItem(reloadKey, '1');
+                if ('caches' in window) {
+                  caches.keys().then(function(keys) {
+                    keys.forEach(function(k) { caches.delete(k); });
+                  });
+                }
+                window.location.reload(true);
+              }
+            }
+          }
+        }, true);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

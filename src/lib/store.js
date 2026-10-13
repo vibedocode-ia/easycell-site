@@ -153,12 +153,18 @@ const INITIAL_OS = [
 export const easyCellStore = {
   // Ordens de Serviço
   getOrders: () => {
-    const raw = localStorage.getItem(OS_STORAGE_KEY);
-    if (!raw) {
-      localStorage.setItem(OS_STORAGE_KEY, JSON.stringify(INITIAL_OS));
+    try {
+      const raw = localStorage.getItem(OS_STORAGE_KEY);
+      if (!raw || raw === 'undefined' || raw === 'null') {
+        localStorage.setItem(OS_STORAGE_KEY, JSON.stringify(INITIAL_OS));
+        return INITIAL_OS;
+      }
+      return JSON.parse(raw);
+    } catch (e) {
+      console.warn('[EasyCell Store] Corrupção detectada em getOrders. Restaurando padrão.');
+      try { localStorage.setItem(OS_STORAGE_KEY, JSON.stringify(INITIAL_OS)); } catch {}
       return INITIAL_OS;
     }
-    return JSON.parse(raw);
   },
 
   getOrderById: (id) => {
@@ -255,12 +261,18 @@ export const easyCellStore = {
 
   // Estoque
   getStock: () => {
-    const raw = localStorage.getItem(ESTOQUE_STORAGE_KEY);
-    if (!raw) {
-      localStorage.setItem(ESTOQUE_STORAGE_KEY, JSON.stringify(INITIAL_ESTOQUE));
+    try {
+      const raw = localStorage.getItem(ESTOQUE_STORAGE_KEY);
+      if (!raw || raw === 'undefined' || raw === 'null') {
+        localStorage.setItem(ESTOQUE_STORAGE_KEY, JSON.stringify(INITIAL_ESTOQUE));
+        return INITIAL_ESTOQUE;
+      }
+      return JSON.parse(raw);
+    } catch (e) {
+      console.warn('[EasyCell Store] Corrupção detectada em getStock. Restaurando padrão.');
+      try { localStorage.setItem(ESTOQUE_STORAGE_KEY, JSON.stringify(INITIAL_ESTOQUE)); } catch {}
       return INITIAL_ESTOQUE;
     }
-    return JSON.parse(raw);
   },
 
   decrementStock: (itemId, qtd = 1) => {
@@ -285,15 +297,21 @@ export const easyCellStore = {
 
   // Caixa
   getCaixa: () => {
-    const raw = localStorage.getItem(CAIXA_STORAGE_KEY);
-    if (!raw) {
-      const initial = [
-        { id: 'cx_1', tipo: 'entrada_os', descricao: 'Quitação O.S. #1003 (iPhone 11)', valor: 30000, metodoPagamento: 'PIX', operadorNome: 'Atendente Balcão', criadoEm: new Date(Date.now() - 3600000 * 2).toISOString() }
-      ];
-      localStorage.setItem(CAIXA_STORAGE_KEY, JSON.stringify(initial));
+    const initial = [
+      { id: 'cx_1', tipo: 'entrada_os', descricao: 'Quitação O.S. #1003 (iPhone 11)', valor: 30000, metodoPagamento: 'PIX', operadorNome: 'Atendente Balcão', criadoEm: new Date(Date.now() - 3600000 * 2).toISOString() }
+    ];
+    try {
+      const raw = localStorage.getItem(CAIXA_STORAGE_KEY);
+      if (!raw || raw === 'undefined' || raw === 'null') {
+        localStorage.setItem(CAIXA_STORAGE_KEY, JSON.stringify(initial));
+        return initial;
+      }
+      return JSON.parse(raw);
+    } catch (e) {
+      console.warn('[EasyCell Store] Corrupção detectada em getCaixa. Restaurando padrão.');
+      try { localStorage.setItem(CAIXA_STORAGE_KEY, JSON.stringify(initial)); } catch {}
       return initial;
     }
-    return JSON.parse(raw);
   },
 
   addCaixaMovimentacao: (mov) => {

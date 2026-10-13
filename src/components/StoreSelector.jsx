@@ -9,14 +9,24 @@ export default function StoreSelector() {
     { id: 'loj_filial_shopping', nomeUnidade: 'Filial — Shopping Morumbi', corIdentificacao: '#3b82f6', tipo: 'filial' },
   ]);
 
-  const [lojaAtivaId, setLojaAtivaId] = useState(() => localStorage.getItem('easycell_active_loja') || 'loj_matriz_centro');
+  const [lojaAtivaId, setLojaAtivaId] = useState(() => {
+    try {
+      return localStorage.getItem('easycell_active_loja') || 'loj_matriz_centro';
+    } catch (e) {
+      return 'loj_matriz_centro';
+    }
+  });
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const handleLojaChange = () => {
-      const saved = localStorage.getItem('easycell_active_loja') || 'loj_matriz_centro';
-      setLojaAtivaId(saved);
+      try {
+        const saved = localStorage.getItem('easycell_active_loja') || 'loj_matriz_centro';
+        setLojaAtivaId(saved);
+      } catch (e) {
+        setLojaAtivaId('loj_matriz_centro');
+      }
     };
 
     window.addEventListener('loja-alterada', handleLojaChange);
