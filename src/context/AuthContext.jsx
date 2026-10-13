@@ -60,22 +60,9 @@ export function AuthProvider({ children }) {
       setLoading(false);
       return { success: false, message: errorData.error || 'Credenciais inválidas' };
     } catch (err) {
-      console.warn('Backend API não alcançado. Aplicando fallback controlado.');
-      // Fallback para desenvolvimento local sem backend ativo
-      if (email && senha) {
-        const fallbackUser = {
-          id: 'usr_admin_1001',
-          nome: email.includes('admin') ? 'Administrador EasyCell' : 'Atendente Balcão',
-          email,
-          cargo: email.includes('admin') ? 'admin' : 'atendente'
-        };
-        localStorage.setItem('easycell_user', JSON.stringify(fallbackUser));
-        setUser(fallbackUser);
-        setLoading(false);
-        return { success: true };
-      }
+      console.error('Falha de rede ou servidor de autenticação inacessível:', err);
       setLoading(false);
-      return { success: false, message: 'Não foi possível conectar ao servidor' };
+      return { success: false, message: 'Serviço de autenticação inacessível. Operação rejeitada por segurança.' };
     }
   };
 

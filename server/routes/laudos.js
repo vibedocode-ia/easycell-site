@@ -5,6 +5,7 @@ import PDFDocument from 'pdfkit';
 import { db } from '../../src/db/index.js';
 import { ordensServico } from '../../src/db/schema/ordens.js';
 import { eq } from 'drizzle-orm';
+import { authenticateUser } from '../middleware/auth.js';
 
 const STORAGE_DIR = process.env.STORAGE_DIR || path.resolve(process.cwd(), 'storage/laudos');
 
@@ -86,8 +87,8 @@ function createPdfBuffer(dados) {
 }
 
 export async function laudosRoutes(fastify, options) {
-  // Geração e Armazenamento Real do PDF Binário
-  fastify.post('/api/v1/laudos/generate-pdf', async (request, reply) => {
+  // Geração e Armazenamento Real do PDF Binário (Protegido por Autenticação)
+  fastify.post('/api/v1/laudos/generate-pdf', { preHandler: [authenticateUser] }, async (request, reply) => {
     const { osId, numeroOs, clienteNome, aparelho, imei, defeitoRelatado, checklist } = request.body || {};
 
     const num = Number(numeroOs) || 1001;
@@ -174,8 +175,8 @@ export async function laudosRoutes(fastify, options) {
     }
   });
 
-  // Verificação de Integridade Criptográfica do Laudo
-  fastify.get('/api/v1/laudos/:numeroOs/verify', async (request, reply) => {
+  // Verificação de Integridade Criptográfica do Laudo (Protegido)
+  fastify.get('/api/v1/laudos/:numeroOs/verify', { preHandler: [authenticateUser] }, async (request, reply) => {
     const { numeroOs } = request.params;
     const num = Number(numeroOs);
 

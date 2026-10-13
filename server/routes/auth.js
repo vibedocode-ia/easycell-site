@@ -4,12 +4,24 @@ import { usuarios } from '../../src/db/schema/auth.js';
 import { eq } from 'drizzle-orm';
 import { signJwt, authenticateUser } from '../middleware/auth.js';
 
-function hashPassword(password) {
-  return crypto.createHash('sha256').update(password).digest('hex');
+// KDF Moderno com Salt Aleatório de 16 bytes e derivação de 64 bytes via Scrypt nativo
+export function hashPasswordScrypt(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const derivedKey = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `${salt}:${derivedKey}`;
+}
+
+export function verifyPasswordScrypt(password, storedHash) {
+  if (!storedHash || !storedHash.includes(':')) return false;
+  const [salt, key] = storedHash.split(':');
+  const keyBuf = Buffer.from(key, 'hex');
+  const derivedBuf = crypto.scryptSync(password, salt, 64);
+  if (keyBuf.length !== derivedBuf.length) return false;
+  return crypto.timingSafeEqual(keyBuf, derivedBuf);
 }
 
 export async function authRoutes(fastify, options) {
-  // Login com validação real e geração de JWT
+  // Login estrito: Fail-Closed total, sem backdoors e com scrypt KDF
   fastify.post('/api/v1/auth/login', async (request, reply) => {
     const { email, senha } = request.body || {};
 
@@ -17,86 +29,41 @@ export async function authRoutes(fastify, options) {
       return reply.status(400).send({ error: 'Email e senha são obrigatórios' });
     }
 
-    const jwtSecret = process.env.JWT_SECRET || 'easycell-local-dev-jwt-secret-secure-32chars';
-    const senhaHash = hashPassword(senha);
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      request.log.error('ERRO CRÍTICO: JWT_SECRET ausente. Operação bloqueada em modo Fail-Closed.');
+      return reply.status(500).send({ error: 'Configuração de segurança incompleta no servidor' });
+    }
 
     try {
-      // 1. Busca no PostgreSQL
-      let userList = [];
-      try {
-        userList = await db.select().from(usuarios).where(eq(usuarios.email, email.toLowerCase().trim())).limit(1);
-      } catch (dbErr) {
-        request.log.warn('Aviso: PostgreSQL offline no ambiente local. Aplicando verificação resiliente.');
-        if (email.toLowerCase().trim() === 'admin@easycell.com.br') {
-          if (senha === 'admin123') {
-            const token = signJwt(
-              { id: 'usr_admin_bootstrap', email: 'admin@easycell.com.br', nome: 'Administrador EasyCell', cargo: 'admin' },
-              jwtSecret,
-              86400 * 7
-            );
-            return reply.send({
-              sucesso: true,
-              token,
-              user: { id: 'usr_admin_bootstrap', email: 'admin@easycell.com.br', nome: 'Administrador EasyCell', cargo: 'admin' }
-            });
-          } else {
-            return reply.status(401).send({ error: 'Credenciais inválidas' });
-          }
-        }
-        return reply.status(401).send({ error: 'Usuário não encontrado' });
+      const emailNormalizado = email.toLowerCase().trim();
+      const userList = await db.select().from(usuarios).where(eq(usuarios.email, emailNormalizado)).limit(1);
+
+      if (userList.length === 0) {
+        return reply.status(401).send({ error: 'Credenciais inválidas' });
       }
 
-      if (userList.length > 0) {
-        const user = userList[0];
-        if (user.senhaHash !== senhaHash) {
-          return reply.status(401).send({ error: 'Credenciais inválidas' });
-        }
+      const user = userList[0];
+      const senhaValida = verifyPasswordScrypt(senha, user.senhaHash);
 
-        const token = signJwt(
-          { id: user.id, email: user.email, nome: user.nome, cargo: user.cargo },
-          jwtSecret,
-          86400 * 7 // 7 dias
-        );
-
-        return reply.send({
-          sucesso: true,
-          token,
-          user: { id: user.id, email: user.email, nome: user.nome, cargo: user.cargo }
-        });
+      if (!senhaValida) {
+        return reply.status(401).send({ error: 'Credenciais inválidas' });
       }
 
-      // 2. Se o banco estiver vazio ou for o primeiro acesso admin (Bootstrap seguro)
-      if (email.toLowerCase().trim() === 'admin@easycell.com.br' && senha === 'admin123') {
-        const adminId = crypto.randomUUID();
-        try {
-          await db.insert(usuarios).values({
-            id: adminId,
-            nome: 'Administrador EasyCell',
-            email: 'admin@easycell.com.br',
-            senhaHash: hashPassword('admin123'),
-            cargo: 'admin',
-          }).onConflictDoNothing();
-        } catch (e) {
-          // ignora se já inserido concorrentemente
-        }
+      const token = signJwt(
+        { id: user.id, email: user.email, nome: user.nome, cargo: user.cargo },
+        jwtSecret,
+        86400 * 7 // 7 dias
+      );
 
-        const token = signJwt(
-          { id: adminId, email: 'admin@easycell.com.br', nome: 'Administrador EasyCell', cargo: 'admin' },
-          jwtSecret,
-          86400 * 7
-        );
-
-        return reply.send({
-          sucesso: true,
-          token,
-          user: { id: adminId, email: 'admin@easycell.com.br', nome: 'Administrador EasyCell', cargo: 'admin' }
-        });
-      }
-
-      return reply.status(401).send({ error: 'Usuário não encontrado ou senha incorreta' });
+      return reply.send({
+        sucesso: true,
+        token,
+        user: { id: user.id, email: user.email, nome: user.nome, cargo: user.cargo }
+      });
     } catch (err) {
-      request.log.error(err, 'Erro durante autenticação');
-      return reply.status(500).send({ error: 'Falha interna no serviço de autenticação' });
+      request.log.error(err, 'Falha ao autenticar usuário no PostgreSQL');
+      return reply.status(503).send({ error: 'Serviço de banco de dados indisponível no momento' });
     }
   });
 

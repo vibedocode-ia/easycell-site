@@ -134,7 +134,10 @@ export default function NovaOsPage() {
     try {
       await fetch('/api/v1/laudos/generate-pdf', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({
           osId: novaOs.id,
           numeroOs: novaOs.numeroOs,
