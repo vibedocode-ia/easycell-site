@@ -19,6 +19,7 @@ export function buildServer() {
     'http://localhost:80',
     'http://127.0.0.1:5173',
     'http://127.0.0.1:3000',
+    'http://127.0.0.1:80',
   ];
 
   if (process.env.CORS_ORIGIN) {
@@ -42,8 +43,8 @@ export function buildServer() {
   server.get('/api/v1/health', async (request, reply) => {
     return {
       status: 'online',
-      versao: 'V1.01.01',
-      banco: 'PostgreSQL 16 via Drizzle ORM (Conectado)',
+      versao: 'V1.01.03',
+      banco: 'PostgreSQL 16 via Drizzle ORM (Ativo)',
       gateway: {
         provedor: 'SofIA / Baileys Gateway',
         status: 'conectado',
@@ -65,13 +66,14 @@ export function buildServer() {
 
 // Inicialização autônoma se executado diretamente
 if (process.env.NODE_ENV !== 'test') {
-  const PORT = process.env.PORT || 3001;
+  // O Fastify escuta explicitamente na porta interna 3001 para que o Nginx ocupe a porta 80 pública
+  const API_PORT = process.env.API_PORT || 3001;
   const server = buildServer();
-  server.listen({ port: Number(PORT), host: '0.0.0.0' }, (err, address) => {
+  server.listen({ port: Number(API_PORT), host: '0.0.0.0' }, (err, address) => {
     if (err) {
       server.log.error(err);
       process.exit(1);
     }
-    console.log(`🚀 [EasyCell API] Backend ativo e escutando em ${address}`);
+    console.log(`🚀 [EasyCell API] Backend ativo e escutando na porta interna ${address}`);
   });
 }
