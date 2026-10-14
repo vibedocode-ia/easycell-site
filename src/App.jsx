@@ -10,6 +10,7 @@ import TrackingPage from './pages/tracking/TrackingPage';
 import PricingPage from './pages/public/PricingPage';
 import CheckoutPage from './pages/public/CheckoutPage';
 import ReferralLandingPage from './pages/public/ReferralLandingPage';
+import AtivacaoPage from './pages/public/AtivacaoPage';
 
 // Layouts
 import SystemLayout from './layouts/SystemLayout';
@@ -50,6 +51,7 @@ export default function App() {
           <Route path="/precos" element={<PricingPage />} />
           <Route path="/checkout/:planId" element={<CheckoutPage />} />
           <Route path="/r/:slug" element={<ReferralLandingPage />} />
+          <Route path="/ativar/:token" element={<AtivacaoPage />} />
           <Route path="/admin" element={<LoginPage />} />
           <Route path="/track/:hash" element={<TrackingPage />} />
 

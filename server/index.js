@@ -11,6 +11,7 @@ import { tecnicosRoutes } from './routes/tecnicos.js';
 import { tenantsRoutes } from './routes/tenants.js';
 import { billingRoutes } from './routes/billing.js';
 import { saasRoutes } from './routes/saas.js';
+import { onboardingRoutes } from './routes/onboarding.js';
 
 const pkg = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 
@@ -94,6 +95,7 @@ export function buildServer() {
   server.register(tenantsRoutes);
   server.register(billingRoutes);
   server.register(saasRoutes);
+  server.register(onboardingRoutes);
 
   return server;
 }

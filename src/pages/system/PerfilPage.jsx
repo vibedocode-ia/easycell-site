@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   User, 
   KeyRound, 
@@ -18,14 +18,23 @@ import { useAuth } from '../../context/AuthContext';
 import { VERSION } from '../../lib/version';
 
 export default function PerfilPage() {
-  const { user, login } = useAuth();
+  const { user, login, updateUser } = useAuth();
 
   // Dados do formulário de perfil
   const [nome, setNome] = useState(user?.nome || 'Vanderson Oliveira');
   const [email, setEmail] = useState(user?.email || 'omd.vandersonoliveira@gmail.com');
-  const [telefone, setTelefone] = useState('(11) 99876-5432');
+  const [telefone, setTelefone] = useState(
+    user?.telefone || user?.whatsapp || localStorage.getItem('easycell_user_telefone') || '(21) 99975-7549'
+  );
   const [salvandoPerfil, setSalvandoPerfil] = useState(false);
   const [msgPerfil, setMsgPerfil] = useState({ tipo: '', texto: '' });
+
+  // Sincroniza campos se os dados do usuário no contexto forem atualizados
+  useEffect(() => {
+    if (user?.nome) setNome(user.nome);
+    if (user?.email) setEmail(user.email);
+    if (user?.telefone) setTelefone(user.telefone);
+  }, [user]);
 
   // Dados do formulário de senha
   const [senhaAtual, setSenhaAtual] = useState('');
@@ -42,30 +51,36 @@ export default function PerfilPage() {
     setMsgPerfil({ tipo: '', texto: '' });
 
     try {
-      const token = localStorage.getItem('easycell_token');
+      const token = localStorage.getItem('easycell_token') || localStorage.getItem('easycell_auth_token');
       const res = await fetch('/api/v1/auth/perfil', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {})
         },
-        body: JSON.stringify({ nome, email })
+        body: JSON.stringify({ nome, email, telefone })
       });
 
       if (res.ok) {
         const data = await res.json();
-        const updatedUser = { ...user, ...data.user };
+        const updatedUser = { ...user, ...data.user, telefone };
+        if (updateUser) updateUser(updatedUser);
         localStorage.setItem('easycell_user', JSON.stringify(updatedUser));
+        localStorage.setItem('easycell_user_telefone', telefone);
         setMsgPerfil({ tipo: 'sucesso', texto: 'Dados do perfil atualizados com sucesso!' });
       } else {
         // Fallback local se estiver offline
-        const updatedUser = { ...user, nome, email };
+        const updatedUser = { ...user, nome, email, telefone };
+        if (updateUser) updateUser(updatedUser);
         localStorage.setItem('easycell_user', JSON.stringify(updatedUser));
+        localStorage.setItem('easycell_user_telefone', telefone);
         setMsgPerfil({ tipo: 'sucesso', texto: 'Dados salvos localmente com sucesso!' });
       }
     } catch (err) {
-      const updatedUser = { ...user, nome, email };
+      const updatedUser = { ...user, nome, email, telefone };
+      if (updateUser) updateUser(updatedUser);
       localStorage.setItem('easycell_user', JSON.stringify(updatedUser));
+      localStorage.setItem('easycell_user_telefone', telefone);
       setMsgPerfil({ tipo: 'sucesso', texto: 'Dados salvos localmente!' });
     } finally {
       setSalvandoPerfil(false);

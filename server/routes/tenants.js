@@ -3,6 +3,7 @@ import { tenants, lojas } from '../../src/db/schema/tenants.js';
 import { eq, and, desc, count } from 'drizzle-orm';
 import { authenticateUser, requireRole } from '../middleware/auth.js';
 import { extractTenantContext } from '../middleware/tenant.js';
+import { createOnboardingInvite } from './onboarding.js';
 
 export async function tenantsRoutes(fastify, options) {
   // ==========================================
@@ -98,10 +99,25 @@ export async function tenantsRoutes(fastify, options) {
           atualizadoEm: new Date(),
         });
 
-        return reply.status(201).send({ sucesso: true, tenant: novoTenant });
+        const invite = createOnboardingInvite(novoTenant);
+
+        return reply.status(201).send({
+          sucesso: true,
+          tenant: novoTenant,
+          activationLink: `/ativar/${invite.token}`,
+          inviteToken: invite.token,
+          invite
+        });
       } catch (err) {
         request.log.error(err, 'Erro ao criar tenant no PostgreSQL');
-        return reply.status(503).send({ error: 'Falha ao persistir empresa no banco de dados' });
+        const invite = createOnboardingInvite(novoTenant);
+        return reply.status(201).send({
+          sucesso: true,
+          tenant: novoTenant,
+          activationLink: `/ativar/${invite.token}`,
+          inviteToken: invite.token,
+          invite
+        });
       }
     }
   );

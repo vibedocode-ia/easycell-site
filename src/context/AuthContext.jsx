@@ -108,6 +108,14 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const updateUser = (userData) => {
+    setUser((prev) => {
+      const updated = { ...prev, ...userData };
+      localStorage.setItem('easycell_user', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   const logout = () => {
     localStorage.removeItem('easycell_token');
     localStorage.removeItem('easycell_auth_token');
@@ -117,7 +125,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!user, loading }}>
+    <AuthContext.Provider value={{ user, token, login, logout, updateUser, setUser, isAuthenticated: !!user, loading }}>
       {children}
     </AuthContext.Provider>
   );

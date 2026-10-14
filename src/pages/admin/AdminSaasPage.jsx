@@ -17,7 +17,13 @@ import {
   Unlock,
   ChevronRight,
   Sparkles,
-  Pencil
+  Pencil,
+  Link as LinkIcon,
+  Copy,
+  Check,
+  RefreshCw,
+  MessageSquare,
+  Share2
 } from 'lucide-react';
 import { VERSION } from '../../lib/version';
 
@@ -77,6 +83,18 @@ export default function AdminSaasPage() {
   const [tenantEdicao, setTenantEdicao] = useState(null);
   const [salvandoEdicao, setSalvandoEdicao] = useState(false);
   const [carregando, setCarregando] = useState(false);
+  const [modalLinkAtivacao, setModalLinkAtivacao] = useState(false);
+  const [linkAtivacaoDados, setLinkAtivacaoDados] = useState({
+    tenantNome: '',
+    tenantId: '',
+    link: '',
+    token: '',
+    telefone: '',
+    expiraEm: '',
+    status: ''
+  });
+  const [copiadoLink, setCopiadoLink] = useState(false);
+  const [renovandoLink, setRenovandoLink] = useState(false);
 
   const [novoForm, setNovoForm] = useState({
     nomeEmpresa: '',
@@ -237,6 +255,19 @@ export default function AdminSaasPage() {
       if (res.ok) {
         const data = await res.json();
         setTenantsList(prev => [data.tenant, ...prev]);
+        const activationUrl = data.activationLink
+          ? `${window.location.origin}${data.activationLink}`
+          : `${window.location.origin}/ativar/${data.inviteToken}`;
+
+        setLinkAtivacaoDados({
+          tenantNome: data.tenant.nomeEmpresa,
+          tenantId: data.tenant.id,
+          link: activationUrl,
+          token: data.inviteToken,
+          telefone: data.tenant.telefone,
+          expiraEm: data.invite?.expiraEm
+        });
+        setModalLinkAtivacao(true);
       } else {
         // Fallback local para preview
         const localCriado = {
@@ -248,6 +279,15 @@ export default function AdminSaasPage() {
           criadoEm: new Date().toISOString()
         };
         setTenantsList(prev => [localCriado, ...prev]);
+        const mockToken = `act_${Date.now()}`;
+        setLinkAtivacaoDados({
+          tenantNome: novoTenantObj.nomeEmpresa,
+          tenantId: localCriado.id,
+          link: `${window.location.origin}/ativar/${mockToken}`,
+          token: mockToken,
+          telefone: novoTenantObj.telefone
+        });
+        setModalLinkAtivacao(true);
       }
     } catch (err) {
       const localCriado = {
@@ -259,6 +299,15 @@ export default function AdminSaasPage() {
         criadoEm: new Date().toISOString()
       };
       setTenantsList(prev => [localCriado, ...prev]);
+      const mockToken = `act_${Date.now()}`;
+      setLinkAtivacaoDados({
+        tenantNome: novoTenantObj.nomeEmpresa,
+        tenantId: localCriado.id,
+        link: `${window.location.origin}/ativar/${mockToken}`,
+        token: mockToken,
+        telefone: novoTenantObj.telefone
+      });
+      setModalLinkAtivacao(true);
     } finally {
       setCarregando(false);
       setModalNovoTenant(false);
@@ -273,6 +322,72 @@ export default function AdminSaasPage() {
         limiteLojas: '3'
       });
     }
+  };
+
+  // Abrir ou consultar link de primeiro acesso
+  const handleAbrirLinkAtivacao = async (t) => {
+    const token = localStorage.getItem('easycell_token');
+    try {
+      const res = await fetch(`/api/v1/saas/tenants/${t.id}/link-ativacao`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+      const data = await res.json();
+      if (res.ok && data.invite) {
+        setLinkAtivacaoDados({
+          tenantNome: t.nomeEmpresa,
+          tenantId: t.id,
+          link: `${window.location.origin}/ativar/${data.invite.token}`,
+          token: data.invite.token,
+          telefone: t.telefone,
+          expiraEm: data.invite.expiraEm,
+          status: data.invite.status
+        });
+        setModalLinkAtivacao(true);
+        return;
+      }
+    } catch (e) {}
+
+    // Se não tiver ou falhar, renova/gera novo link
+    await handleRenovarLink(t);
+  };
+
+  // Renovar link de ativação por mais 7 dias
+  const handleRenovarLink = async (tenantOuId) => {
+    setRenovandoLink(true);
+    const tenantId = typeof tenantOuId === 'string' ? tenantOuId : (tenantOuId?.id || linkAtivacaoDados.tenantId);
+    const token = localStorage.getItem('easycell_token');
+
+    try {
+      const res = await fetch(`/api/v1/saas/tenants/${tenantId}/renovar-link`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
+      const data = await res.json();
+      if (res.ok && data.invite) {
+        setLinkAtivacaoDados({
+          tenantNome: data.invite.nomeEmpresa || linkAtivacaoDados.tenantNome,
+          tenantId,
+          link: `${window.location.origin}/ativar/${data.invite.token}`,
+          token: data.invite.token,
+          telefone: data.invite.telefone || linkAtivacaoDados.telefone,
+          expiraEm: data.invite.expiraEm,
+          status: data.invite.status
+        });
+        setModalLinkAtivacao(true);
+      }
+    } catch (e) {
+      console.warn('Erro ao renovar link');
+    } finally {
+      setRenovandoLink(false);
+    }
+  };
+
+  // Copiar link de ativação para a área de transferência
+  const handleCopiarLink = () => {
+    if (!linkAtivacaoDados.link) return;
+    navigator.clipboard.writeText(linkAtivacaoDados.link);
+    setCopiadoLink(true);
+    setTimeout(() => setCopiadoLink(false), 2000);
   };
 
   // Cálculo de Métricas SaaS
@@ -492,6 +607,15 @@ export default function AdminSaasPage() {
 
                   <td className="py-4 px-5 text-right space-x-2">
                     <button
+                      onClick={() => handleAbrirLinkAtivacao(t)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer bg-cyan-950/60 hover:bg-cyan-900 text-cyan-300 border border-cyan-800/60"
+                      title="Link de Ativação e Primeiro Acesso"
+                    >
+                      <LinkIcon className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Link de Acesso</span>
+                    </button>
+
+                    <button
                       onClick={() => handleAbrirEditar(t)}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-600"
                     >
@@ -530,13 +654,16 @@ export default function AdminSaasPage() {
       {/* Modal de Cadastro de Novo Tenant */}
       {modalNovoTenant && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-6">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center">
                   <Building2 className="w-4 h-4" />
                 </div>
-                <h3 className="text-base font-black text-white">Cadastrar Nova Assistência (Tenant)</h3>
+                <div>
+                  <h3 className="text-base font-black text-white">Cadastrar Nova Assistência</h3>
+                  <p className="text-[11px] text-slate-400">Cria a conta e gera o link de primeiro acesso do cliente</p>
+                </div>
               </div>
               <button
                 onClick={() => setModalNovoTenant(false)}
@@ -546,63 +673,61 @@ export default function AdminSaasPage() {
               </button>
             </div>
 
+            {/* Aviso explicativo do fluxo de ativação */}
+            <div className="p-3 bg-cyan-950/40 border border-cyan-800/40 rounded-2xl flex items-start gap-2.5 text-xs text-cyan-200">
+              <Sparkles className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <span className="font-bold text-white">Primeiro Acesso do Cliente:</span>
+                <p className="text-slate-300 text-[11px] leading-relaxed">
+                  Você apenas cadastra a empresa e o plano. O sistema gerará um link exclusivo para o cliente criar a própria senha e preencher CNPJ/CPF, endereço e dados da loja.
+                </p>
+              </div>
+            </div>
+
             <form onSubmit={handleCriarTenant} className="space-y-4 text-xs">
               <div>
-                <label className="block text-slate-300 font-semibold mb-1">Nome da Assistência / Empresa</label>
+                <label className="block text-slate-300 font-semibold mb-1">Nome da Empresa / Assistência *</label>
                 <input
                   type="text"
                   required
                   placeholder="Ex: SmartFix Centro Técnico"
                   value={novoForm.nomeEmpresa}
-                  onChange={(e) => setNovoForm({ ...novoForm, nomeEmpresa: e.target.value })}
+                  onChange={(e) => {
+                    const nome = e.target.value;
+                    const autoSlug = nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+                    setNovoForm({ 
+                      ...novoForm, 
+                      nomeEmpresa: nome,
+                      slug: novoForm.slug ? novoForm.slug : autoSlug 
+                    });
+                  }}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-400"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Slug (Identificador)</label>
+                  <label className="block text-slate-300 font-semibold mb-1">WhatsApp do Responsável</label>
                   <input
                     type="text"
-                    placeholder="smartfix-sp"
-                    value={novoForm.slug}
-                    onChange={(e) => setNovoForm({ ...novoForm, slug: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-400 font-mono text-[11px]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-300 font-semibold mb-1">CNPJ (Opcional)</label>
-                  <input
-                    type="text"
-                    placeholder="00.000.000/0001-00"
-                    value={novoForm.cnpj}
-                    onChange={(e) => setNovoForm({ ...novoForm, cnpj: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Email do Responsável</label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="gestor@empresa.com"
-                    value={novoForm.emailResponsavel}
-                    onChange={(e) => setNovoForm({ ...novoForm, emailResponsavel: e.target.value })}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Telefone / WhatsApp</label>
-                  <input
-                    type="text"
-                    placeholder="(11) 99999-9999"
+                    placeholder="(21) 99999-9999"
                     value={novoForm.telefone}
                     onChange={(e) => setNovoForm({ ...novoForm, telefone: e.target.value })}
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-400"
                   />
+                  <span className="text-[10px] text-slate-500 mt-0.5 block">Para disparo do link de ativação</span>
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">E-mail do Responsável</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="cliente@empresa.com"
+                    value={novoForm.emailResponsavel}
+                    onChange={(e) => setNovoForm({ ...novoForm, emailResponsavel: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-400"
+                  />
+                  <span className="text-[10px] text-slate-500 mt-0.5 block">Login prévio do responsável</span>
                 </div>
               </div>
 
@@ -621,9 +746,9 @@ export default function AdminSaasPage() {
                     }}
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-cyan-400"
                   >
-                    <option value="starter">Starter</option>
-                    <option value="pro">Pro</option>
-                    <option value="enterprise">Enterprise</option>
+                    <option value="starter">Starter (1 loja)</option>
+                    <option value="pro">Pro (Até 3 lojas)</option>
+                    <option value="enterprise">Enterprise (10 lojas)</option>
                   </select>
                 </div>
                 <div>
@@ -646,20 +771,44 @@ export default function AdminSaasPage() {
                 </div>
               </div>
 
+              <div className="grid grid-cols-2 gap-3 pt-1 border-t border-slate-800/60">
+                <div>
+                  <label className="block text-slate-400 font-semibold mb-1">Slug / Identificador</label>
+                  <input
+                    type="text"
+                    placeholder="smartfix-sp"
+                    value={novoForm.slug}
+                    onChange={(e) => setNovoForm({ ...novoForm, slug: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800/80 rounded-xl px-3 py-2 text-slate-300 focus:outline-none focus:border-cyan-400 font-mono text-[11px]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-400 font-semibold mb-1">CNPJ / CPF (Opcional)</label>
+                  <input
+                    type="text"
+                    placeholder="O cliente preencherá"
+                    value={novoForm.cnpj}
+                    onChange={(e) => setNovoForm({ ...novoForm, cnpj: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-800/80 rounded-xl px-3 py-2 text-slate-300 focus:outline-none focus:border-cyan-400 text-[11px]"
+                  />
+                </div>
+              </div>
+
               <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-800">
                 <button
                   type="button"
                   onClick={() => setModalNovoTenant(false)}
-                  className="px-4 py-2.5 rounded-xl text-slate-400 hover:text-white text-xs font-bold"
+                  className="px-4 py-2.5 rounded-xl text-slate-400 hover:text-white text-xs font-bold cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={carregando}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs shadow-lg shadow-cyan-500/20 active:scale-95 disabled:opacity-50"
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs shadow-lg shadow-cyan-500/20 active:scale-95 disabled:opacity-50 cursor-pointer flex items-center gap-2"
                 >
-                  {carregando ? 'Criando Tenant...' : 'Criar e Ativar Tenant'}
+                  <Sparkles className="w-3.5 h-3.5" />
+                  {carregando ? 'Criando e Gerando Link...' : 'Criar e Gerar Link de Acesso'}
                 </button>
               </div>
             </form>
@@ -789,23 +938,162 @@ export default function AdminSaasPage() {
                 </div>
               </div>
 
-              <div className="pt-4 flex items-center justify-end gap-3 border-t border-slate-800">
+              <div className="pt-4 flex items-center justify-between gap-3 border-t border-slate-800">
                 <button
                   type="button"
-                  onClick={() => setModalEditarTenant(false)}
-                  className="px-4 py-2.5 rounded-xl text-slate-400 hover:text-white text-xs font-bold cursor-pointer"
+                  onClick={() => {
+                    setModalEditarTenant(false);
+                    handleAbrirLinkAtivacao(tenantEdicao);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-cyan-950/80 text-cyan-300 border border-cyan-800/80 hover:bg-cyan-900 text-xs font-bold transition cursor-pointer"
                 >
-                  Cancelar
+                  <LinkIcon className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Link de Acesso</span>
                 </button>
-                <button
-                  type="submit"
-                  disabled={salvandoEdicao}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs shadow-lg shadow-cyan-500/20 active:scale-95 disabled:opacity-50 cursor-pointer"
-                >
-                  {salvandoEdicao ? 'Salvando Alterações...' : 'Salvar Alterações'}
-                </button>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setModalEditarTenant(false)}
+                    className="px-4 py-2.5 rounded-xl text-slate-400 hover:text-white text-xs font-bold cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={salvandoEdicao}
+                    className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs shadow-lg shadow-cyan-500/20 active:scale-95 disabled:opacity-50 cursor-pointer"
+                  >
+                    {salvandoEdicao ? 'Salvando Alterações...' : 'Salvar Alterações'}
+                  </button>
+                </div>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Link de Ativação / Primeiro Acesso */}
+      {modalLinkAtivacao && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-cyan-500/40 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-200">
+            {/* Cabeçalho */}
+            <div className="flex items-start justify-between border-b border-slate-800 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center shadow-inner">
+                  <LinkIcon className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-white flex items-center gap-2">
+                    Link de Primeiro Acesso
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                      7 Dias
+                    </span>
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    {linkAtivacaoDados.tenantNome || 'Empresa Cliente'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setModalLinkAtivacao(false)}
+                className="text-slate-400 hover:text-white text-xl p-1 rounded-lg hover:bg-slate-800 transition cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Informação explicativa */}
+            <div className="p-4 bg-slate-950/70 border border-slate-800 rounded-2xl text-xs space-y-2">
+              <p className="text-slate-300 font-semibold">
+                O cliente utilizará este link seguro para configurar a conta:
+              </p>
+              <ul className="text-slate-400 text-[11px] space-y-1 list-disc list-inside">
+                <li>Definir a senha do usuário gestor / admin</li>
+                <li>Preencher CNPJ ou CPF e Razão Social</li>
+                <li>Cadastrar endereço completo da loja com auto-busca de CEP</li>
+                <li>Ao salvar, o cliente é autenticado diretamente no sistema</li>
+              </ul>
+            </div>
+
+            {/* Caixa do Link */}
+            <div className="space-y-2">
+              <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-wider font-mono">
+                Link Exclusivo de Ativação
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={linkAtivacaoDados.link || ''}
+                  className="w-full bg-slate-950 border border-cyan-500/30 rounded-xl px-3.5 py-2.5 text-cyan-300 font-mono text-xs focus:outline-none select-all"
+                />
+                <button
+                  type="button"
+                  onClick={handleCopiarLink}
+                  className={`px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition cursor-pointer shrink-0 ${
+                    copiadoLink
+                      ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20'
+                      : 'bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-lg shadow-cyan-500/20 active:scale-95'
+                  }`}
+                >
+                  {copiadoLink ? (
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span>Copiado!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4" />
+                      <span>Copiar Link</span>
+                    </>
+                  )}
+                </button>
+              </div>
+              {linkAtivacaoDados.expiraEm && (
+                <p className="text-[10px] text-slate-500 font-mono">
+                  Expira em: {new Date(linkAtivacaoDados.expiraEm).toLocaleDateString('pt-BR')} às {new Date(linkAtivacaoDados.expiraEm).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                </p>
+              )}
+            </div>
+
+            {/* Ações de Envio: WhatsApp e Renovação */}
+            <div className="pt-2 flex flex-col sm:flex-row gap-2.5">
+              {linkAtivacaoDados.telefone && (
+                <a
+                  href={`https://wa.me/55${linkAtivacaoDados.telefone.replace(/\D/g, '')}?text=${encodeURIComponent(
+                    `Olá! Seu acesso à plataforma EasyCell foi criado.\n\nAcesse o link exclusivo abaixo para definir sua senha e preencher os dados da sua assistência:\n${linkAtivacaoDados.link}\n\nEste link é válido por 7 dias.`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition shadow-lg shadow-emerald-600/20 active:scale-95 cursor-pointer"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span>Enviar por WhatsApp</span>
+                </a>
+              )}
+
+              <button
+                type="button"
+                onClick={() => handleRenovarLink(linkAtivacaoDados.tenantId)}
+                disabled={renovandoLink}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs transition cursor-pointer active:scale-95 disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 text-cyan-400 ${renovandoLink ? 'animate-spin' : ''}`} />
+                <span>{renovandoLink ? 'Renovando...' : 'Renovar Link (+7 dias)'}</span>
+              </button>
+            </div>
+
+            {/* Rodapé */}
+            <div className="pt-3 border-t border-slate-800 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setModalLinkAtivacao(false)}
+                className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition cursor-pointer"
+              >
+                Concluir
+              </button>
+            </div>
           </div>
         </div>
       )}

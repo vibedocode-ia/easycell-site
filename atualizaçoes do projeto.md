@@ -1,3 +1,20 @@
+### V1.03.02 (2026-10-14) - Fluxo de link de ativação para novo cliente e correção de persistência do perfil
+- **Release:** Fluxo de link de ativação para novo cliente e correção de persistência do perfil
+- **Correção de Persistência do Telefone (Perfil SuperAdmin):**
+  - Identificada e eliminada causa raiz onde o campo de telefone/whatsapp ficava preso no valor padrão em cache/estado local.
+  - Atualizado endpoint `PUT /api/v1/auth/perfil` para receber, validar e persistir o número de telefone no cofre persistente (`superadmin_vault.json`) e na sincronização com PostgreSQL.
+  - Implementado método `updateUser()` no `AuthContext.jsx` para atualizar instantaneamente o estado reativo global e o `localStorage` do navegador sem perda de dados ou necessidade de recarregar a página.
+- **Onboarding de Clientes por Link Seguro de Primeiro Acesso:**
+  - Fluxo self-service: o SuperAdmin apenas cadastra os dados essenciais da empresa cliente (Nome/Fantasia, Plano e Contato para envio).
+  - Geração automática de link de primeiro acesso seguro com token criptográfico de 64 caracteres hexadecimais e validade de 7 dias (`/ativar/:token`).
+  - Nova página de onboarding pública (`/ativar/:token`) com verificação dinâmica de validade do convite, formulário de primeiro acesso com auto-completar de CEP via ViaCEP, campos fiscais (CNPJ/CPF, Razão Social, endereço completo da loja) e definição de senha de acesso com hashing Scrypt e salt exclusivo.
+  - Conclusão com autenticação automática e redirecionamento direto para a área do cliente (`/system`).
+- **Gestão de Links no Console SuperAdmin (`/admin/saas/tenants`):**
+  - Novo modal com link de acesso exclusivo, botão de cópia com feedback visual, disparo rápido direto via WhatsApp (`wa.me`) com mensagem formatada e botão de renovação de link (+7 dias).
+  - Acesso direto ao link de ativação pela listagem de empresas clientes e pelo modal de edição.
+
+---
+
 ### V1.03.01 (2026-10-14) - Atualização de credenciais oficiais do SuperAdmin e sincronização bidirecional PostgreSQL/Vault
 - **Release:** Atualização de credenciais oficiais do SuperAdmin e sincronização bidirecional PostgreSQL/Vault
 

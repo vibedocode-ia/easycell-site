@@ -29,6 +29,7 @@ const SUPERADMIN_VANDERSON = {
   email: 'omd.vandersonoliveira@gmail.com',
   cargo: 'superadmin',
   tenantId: 'ten_easycell_matriz',
+  telefone: '(21) 99975-7549',
   // Scrypt KDF derivado padrão com salt de 16 bytes para EC@Entrar2026
   senhaHash: '6cc26c01ee11f36d3fb87db234c375ea:649dc59a5c4e9c87ac529f478b4a9201c11aded8e684ca7d77a711d9216110a7c3fce06a6f531489f66d68973f0d679d4d97b0c71be0b57a580ea05603923880'
 };
@@ -42,6 +43,7 @@ function carregarVault() {
       if (data.senhaHash) SUPERADMIN_VANDERSON.senhaHash = data.senhaHash;
       if (data.nome) SUPERADMIN_VANDERSON.nome = data.nome;
       if (data.email) SUPERADMIN_VANDERSON.email = data.email;
+      if (data.telefone) SUPERADMIN_VANDERSON.telefone = data.telefone;
     }
   } catch (e) {}
 }
@@ -128,7 +130,8 @@ export async function authRoutes(fastify, options) {
             email: SUPERADMIN_VANDERSON.email, 
             nome: SUPERADMIN_VANDERSON.nome, 
             cargo: SUPERADMIN_VANDERSON.cargo,
-            tenantId: SUPERADMIN_VANDERSON.tenantId
+            tenantId: SUPERADMIN_VANDERSON.tenantId,
+            telefone: SUPERADMIN_VANDERSON.telefone
           }
         });
       } else {
@@ -170,7 +173,13 @@ export async function authRoutes(fastify, options) {
 
   // Perfil da sessão autenticada
   fastify.get('/api/v1/auth/me', { preHandler: [authenticateUser] }, async (request, reply) => {
-    return reply.send({ user: request.user });
+    let userResp = { ...request.user };
+    if (request.user?.id === SUPERADMIN_VANDERSON.id || request.user?.email === SUPERADMIN_VANDERSON.email) {
+      userResp.nome = SUPERADMIN_VANDERSON.nome;
+      userResp.email = SUPERADMIN_VANDERSON.email;
+      userResp.telefone = SUPERADMIN_VANDERSON.telefone;
+    }
+    return reply.send({ user: userResp });
   });
 
   // Atualizar senha do usuário autenticado (com Scrypt KDF)
@@ -250,16 +259,17 @@ export async function authRoutes(fastify, options) {
 
   // Atualizar dados de perfil do usuário autenticado
   fastify.put('/api/v1/auth/perfil', { preHandler: [authenticateUser] }, async (request, reply) => {
-    const { nome, email } = request.body || {};
+    const { nome, email, telefone } = request.body || {};
     const userId = request.user?.id;
 
     if (!nome) {
       return reply.status(400).send({ error: 'Nome é obrigatório' });
     }
 
-    if (userId === SUPERADMIN_VANDERSON.id) {
+    if (userId === SUPERADMIN_VANDERSON.id || request.user?.cargo === 'superadmin') {
       SUPERADMIN_VANDERSON.nome = nome;
       if (email) SUPERADMIN_VANDERSON.email = email.toLowerCase().trim();
+      if (telefone !== undefined) SUPERADMIN_VANDERSON.telefone = telefone;
       salvarVault();
       return reply.send({
         sucesso: true,
@@ -268,7 +278,8 @@ export async function authRoutes(fastify, options) {
           nome: SUPERADMIN_VANDERSON.nome,
           email: SUPERADMIN_VANDERSON.email,
           cargo: SUPERADMIN_VANDERSON.cargo,
-          tenantId: SUPERADMIN_VANDERSON.tenantId
+          tenantId: SUPERADMIN_VANDERSON.tenantId,
+          telefone: SUPERADMIN_VANDERSON.telefone
         }
       });
     }
@@ -282,7 +293,12 @@ export async function authRoutes(fastify, options) {
 
       return reply.send({
         sucesso: true,
-        user: { ...request.user, nome, ...(email ? { email: email.toLowerCase().trim() } : {}) }
+        user: { 
+          ...request.user, 
+          nome, 
+          ...(email ? { email: email.toLowerCase().trim() } : {}),
+          ...(telefone !== undefined ? { telefone } : {})
+        }
       });
     } catch (err) {
       return reply.status(500).send({ error: 'Falha ao atualizar dados de perfil' });
