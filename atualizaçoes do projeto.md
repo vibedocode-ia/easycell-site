@@ -1,3 +1,22 @@
+### V1.03.03 (2026-10-14) - Tour interativo guiado e controle de dados demonstrativos
+- **Release:** Tour interativo guiado e controle de dados demonstrativos
+- **Sinalização Clara de Conteúdo Demonstrativo:**
+  - Banner superior inteligente no dashboard (`DashboardPage.jsx`) sinalizando o "Modo Demonstração Ativo", explicando a finalidade dos dados fictícios.
+  - Etiquetas visuais `[DEMO]` aplicadas em todas as Ordens de Serviço demonstrativas tanto na tabela do Dashboard quanto nos cards do Kanban Operacional (`KanbanPage.jsx`).
+- **Motor de Limpeza de Dados de Demonstração (Zero-State):**
+  - Implementados métodos `isDemoActive()`, `clearDemoData()` e `restoreDemoData()` em `easyCellStore`.
+  - Exclusão seletiva com modal de confirmação no Dashboard: apaga ordens de serviço, movimentações de caixa e itens de exemplo, gravando `easycell_demo_cleared` no `localStorage`.
+  - Apresentação de empty state elegante e acolhedor quando a lista de ordens estiver limpa, com botão para abrir a primeira O.S. real e atalho discreto para restaurar os dados de exemplo se desejado.
+- **Tour Guiado Interativo (Spotlight Step-by-Step):**
+  - Novo componente `TourGuiado.jsx` com foco visual em 10 etapas cobrindo: Boas-vindas, Nova O.S. Blindada, Ordens & Kanban, Filiais & Lojas, Técnicos & Comissões, Automações WhatsApp (SofIA), Estoque Triplo, Frente de Caixa, Assinatura/Suporte e Conclusão.
+  - Destaque visual tipo spotlight com anel pulsante ciano ao redor dos elementos do menu e cards flutuantes inteligentes com dicas operacionais, barra de progresso animada e teclas de atalho (Esc e Setas).
+  - Disparo automático suave no primeiro login de novos clientes e atalho no último passo para limpar os dados demo imediatamente.
+- **Acesso Permanente ao Tutorial:**
+  - Botão "Tutorial do Sistema" em destaque no Topbar (`SystemLayout.jsx`).
+  - Botão fixo com selo "Guia" na barra lateral (`SystemSidebar.jsx`), permitindo reabrir o tour passo a passo a qualquer momento com 1 clique.
+
+---
+
 ### V1.03.02 (2026-10-14) - Fluxo de link de ativação para novo cliente e correção de persistência do perfil
 - **Release:** Fluxo de link de ativação para novo cliente e correção de persistência do perfil
 - **Correção de Persistência do Telefone (Perfil SuperAdmin):**

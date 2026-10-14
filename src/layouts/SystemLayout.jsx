@@ -3,7 +3,8 @@ import { Outlet, NavLink } from 'react-router-dom';
 import SystemSidebar from './SystemSidebar';
 import StoreSelector from '../components/StoreSelector';
 import BlockOverlay from '../components/BlockOverlay';
-import { PlusCircle, Search, Building2, ArrowLeft, Sparkles } from 'lucide-react';
+import TourGuiado from '../components/TourGuiado';
+import { PlusCircle, Search, Building2, ArrowLeft, Sparkles, HelpCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function SystemLayout() {
@@ -30,6 +31,9 @@ export default function SystemLayout() {
       {/* Overlay de Inadimplência e Bloqueio Suave (ativo se past_due ou suspended) */}
       <BlockOverlay status={subStatus} onQuitado={() => setSubStatus('active')} />
 
+      {/* Tour Guiado Interativo para novos usuários e disponível sob demanda */}
+      <TourGuiado />
+
       {/* Sidebar Fixa Lateral */}
       <SystemSidebar />
 
@@ -51,6 +55,17 @@ export default function SystemLayout() {
           </div>
 
           <div className="flex items-center gap-3">
+            {/* Botão de Acesso Permanente ao Tutorial do Sistema */}
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('easycell_open_tour'))}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-cyan-500/50 hover:bg-cyan-950/20 text-slate-300 hover:text-cyan-300 font-bold text-xs transition-all shadow-sm active:scale-95 cursor-pointer group"
+              title="Abrir Tutorial Guiado do Sistema"
+            >
+              <HelpCircle className="w-4 h-4 text-cyan-400 group-hover:rotate-12 transition-transform" />
+              <span className="hidden sm:inline">Tutorial do Sistema</span>
+            </button>
+
             {/* Banner/Botão para SuperAdmin alternar de volta ao controle SaaS */}
             {isSuperadmin && (
               <NavLink
@@ -59,7 +74,7 @@ export default function SystemLayout() {
                 title="Voltar ao Painel Master de Gestão da Plataforma SaaS"
               >
                 <Building2 className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
-                <span>← Voltar ao Super Admin SaaS</span>
+                <span>← Super Admin SaaS</span>
               </NavLink>
             )}
 

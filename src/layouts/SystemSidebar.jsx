@@ -35,19 +35,19 @@ export default function SystemSidebar() {
   };
 
   const navItems = [
-    { label: 'Dashboard', path: '/system', icon: LayoutDashboard },
-    { label: 'Nova O.S. Blindada', path: '/system/os/nova', icon: PlusCircle, highlight: true },
-    { label: 'Ordens & Kanban', path: '/system/os', icon: Kanban },
-    { label: 'Filiais & Lojas', path: '/system/lojas', icon: Store },
-    { label: 'Técnicos & Comissões', path: '/system/tecnicos', icon: Users },
-    { label: 'Automações WhatsApp', path: '/system/automacoes', icon: Bot },
-    { label: 'Estoque Triplo', path: '/system/estoque', icon: Package },
-    { label: 'Frente de Caixa', path: '/system/caixa', icon: DollarSign },
-    { label: 'Minha Assinatura', path: '/system/assinatura', icon: CreditCard },
-    { label: 'Indique e Ganhe', path: '/system/indicar', icon: Gift },
-    { label: 'Suporte Técnico', path: '/system/suporte', icon: HelpCircle },
-    { label: 'Configurações', path: '/system/configuracoes', icon: Settings },
-    { label: 'Meu Perfil', path: '/system/perfil', icon: User },
+    { label: 'Dashboard', path: '/system', icon: LayoutDashboard, tourKey: 'dashboard' },
+    { label: 'Nova O.S. Blindada', path: '/system/os/nova', icon: PlusCircle, highlight: true, tourKey: 'nova-os' },
+    { label: 'Ordens & Kanban', path: '/system/os', icon: Kanban, tourKey: 'ordens-kanban' },
+    { label: 'Filiais & Lojas', path: '/system/lojas', icon: Store, tourKey: 'filiais-lojas' },
+    { label: 'Técnicos & Comissões', path: '/system/tecnicos', icon: Users, tourKey: 'tecnicos-comissoes' },
+    { label: 'Automações WhatsApp', path: '/system/automacoes', icon: Bot, tourKey: 'automacoes-whatsapp' },
+    { label: 'Estoque Triplo', path: '/system/estoque', icon: Package, tourKey: 'estoque-triplo' },
+    { label: 'Frente de Caixa', path: '/system/caixa', icon: DollarSign, tourKey: 'frente-caixa' },
+    { label: 'Minha Assinatura', path: '/system/assinatura', icon: CreditCard, tourKey: 'minha-assinatura' },
+    { label: 'Indique e Ganhe', path: '/system/indicar', icon: Gift, tourKey: 'indique-ganhe' },
+    { label: 'Suporte Técnico', path: '/system/suporte', icon: HelpCircle, tourKey: 'suporte-tecnico' },
+    { label: 'Configurações', path: '/system/configuracoes', icon: Settings, tourKey: 'configuracoes' },
+    { label: 'Meu Perfil', path: '/system/perfil', icon: User, tourKey: 'meu-perfil' },
   ];
 
   return (
@@ -105,6 +105,7 @@ export default function SystemSidebar() {
                 key={item.path}
                 to={item.path}
                 end={item.path === '/system'}
+                data-tour={item.tourKey}
                 className={({ isActive }) => `
                   flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-semibold transition-all group
                   ${item.highlight ? 'bg-gradient-to-r from-cyan-500/20 to-blue-600/10 border border-cyan-500/40 text-cyan-300 hover:border-cyan-400' : ''}
@@ -127,8 +128,23 @@ export default function SystemSidebar() {
         </nav>
       </div>
 
-      {/* User Card & Logout */}
+      {/* User Card, Tutorial & Logout */}
       <div className="p-4 border-t border-slate-800/80 bg-slate-950/40">
+        {/* Botão de Tutorial Fixo na Barra Lateral */}
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new CustomEvent('easycell_open_tour'))}
+          className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-cyan-300 bg-slate-900/60 hover:bg-cyan-950/40 border border-slate-800 hover:border-cyan-500/40 transition-all cursor-pointer mb-2.5 group"
+        >
+          <div className="flex items-center gap-2.5">
+            <HelpCircle className="w-4 h-4 text-cyan-400 group-hover:rotate-12 transition-transform" />
+            <span>Tutorial do Sistema</span>
+          </div>
+          <span className="text-[10px] text-cyan-400 font-mono bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800/60">
+            Guia
+          </span>
+        </button>
+
         <NavLink
           to="/system/perfil"
           className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-cyan-500/40 transition-all mb-2 group cursor-pointer"
@@ -149,7 +165,7 @@ export default function SystemSidebar() {
 
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-950/30 border border-transparent hover:border-rose-500/30 transition-all cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-950/30 border border-transparent hover:border-rose-500/30 transition-all cursor-pointer"
         >
           <LogOut className="w-4 h-4" />
           <span>Sair da Sessão</span>

@@ -17,8 +17,19 @@ export default function KanbanPage() {
   const [orders, setOrders] = useState([]);
   const [busca, setBusca] = useState('');
 
-  useEffect(() => {
+  const carregarOrdens = () => {
     setOrders(easyCellStore.getOrders());
+  };
+
+  useEffect(() => {
+    carregarOrdens();
+    const handleAtualizacao = () => carregarOrdens();
+    window.addEventListener('easycell_store_updated', handleAtualizacao);
+    window.addEventListener('easycell_demo_cleared', handleAtualizacao);
+    return () => {
+      window.removeEventListener('easycell_store_updated', handleAtualizacao);
+      window.removeEventListener('easycell_demo_cleared', handleAtualizacao);
+    };
   }, []);
 
   const [notifFeedback, setNotifFeedback] = useState(null);
@@ -136,9 +147,16 @@ export default function KanbanPage() {
                     className="p-3.5 rounded-xl bg-slate-950/90 border border-slate-850 hover:border-cyan-500/50 shadow-md cursor-grab active:cursor-grabbing transition-all space-y-2.5 group"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-xs font-black text-cyan-400">
-                        #{ordem.numeroOs}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-mono text-xs font-black text-cyan-400">
+                          #{ordem.numeroOs}
+                        </span>
+                        {ordem.isDemo && (
+                          <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                            DEMO
+                          </span>
+                        )}
+                      </div>
                       <span className="text-[10px] text-slate-500 flex items-center gap-1 font-mono">
                         <Clock className="w-3 h-3" /> Hoje
                       </span>

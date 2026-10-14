@@ -2,15 +2,16 @@
 const OS_STORAGE_KEY = 'easycell_ordens_servico';
 const ESTOQUE_STORAGE_KEY = 'easycell_estoque_itens';
 const CAIXA_STORAGE_KEY = 'easycell_caixa_movimentacoes';
+const DEMO_STATUS_KEY = 'easycell_demo_cleared';
 
 // Mock inicial realista de itens de estoque (Peças, Mão de Obra e Aparelhos por IMEI)
 const INITIAL_ESTOQUE = [
-  { id: 'est_1', codigo: 'PEC-001', nome: 'Tela Original iPhone 13 Pro OLED', tipo: 'peca_reposicao', imei: null, quantidade: 4, quantidadeMinima: 2, precoCusto: 42000, precoVenda: 75000 },
-  { id: 'est_2', codigo: 'PEC-002', nome: 'Bateria Premium iPhone 11 100% Saúde', tipo: 'peca_reposicao', imei: null, quantidade: 8, quantidadeMinima: 3, precoCusto: 8500, precoVenda: 22000 },
-  { id: 'est_3', codigo: 'PEC-003', nome: 'Conector de Carga USB-C Galaxy S22', tipo: 'peca_reposicao', imei: null, quantidade: 1, quantidadeMinima: 2, precoCusto: 3500, precoVenda: 16000 },
-  { id: 'est_4', codigo: 'SRV-001', nome: 'Troca de Vidro / Recondicionamento', tipo: 'servico', imei: null, quantidade: 999, quantidadeMinima: 0, precoCusto: 3000, precoVenda: 18000 },
-  { id: 'est_5', codigo: 'SRV-002', nome: 'Desoxidação & Limpeza Ultrassônica', tipo: 'servico', imei: null, quantidade: 999, quantidadeMinima: 0, precoCusto: 1000, precoVenda: 15000 },
-  { id: 'est_6', codigo: 'AP-001', nome: 'iPhone 12 128GB Azul Impecável (Seminovo)', tipo: 'aparelho_usado', imei: '354892019482711', quantidade: 1, quantidadeMinima: 1, precoCusto: 170000, precoVenda: 245000 },
+  { id: 'est_1', codigo: 'PEC-001', nome: 'Tela Original iPhone 13 Pro OLED', tipo: 'peca_reposicao', imei: null, quantidade: 4, quantidadeMinima: 2, precoCusto: 42000, precoVenda: 75000, isDemo: true },
+  { id: 'est_2', codigo: 'PEC-002', nome: 'Bateria Premium iPhone 11 100% Saúde', tipo: 'peca_reposicao', imei: null, quantidade: 8, quantidadeMinima: 3, precoCusto: 8500, precoVenda: 22000, isDemo: true },
+  { id: 'est_3', codigo: 'PEC-003', nome: 'Conector de Carga USB-C Galaxy S22', tipo: 'peca_reposicao', imei: null, quantidade: 1, quantidadeMinima: 2, precoCusto: 3500, precoVenda: 16000, isDemo: true },
+  { id: 'est_4', codigo: 'SRV-001', nome: 'Troca de Vidro / Recondicionamento', tipo: 'servico', imei: null, quantidade: 999, quantidadeMinima: 0, precoCusto: 3000, precoVenda: 18000, isDemo: true },
+  { id: 'est_5', codigo: 'SRV-002', nome: 'Desoxidação & Limpeza Ultrassônica', tipo: 'servico', imei: null, quantidade: 999, quantidadeMinima: 0, precoCusto: 1000, precoVenda: 15000, isDemo: true },
+  { id: 'est_6', codigo: 'AP-001', nome: 'iPhone 12 128GB Azul Impecável (Seminovo)', tipo: 'aparelho_usado', imei: '354892019482711', quantidade: 1, quantidadeMinima: 1, precoCusto: 170000, precoVenda: 245000, isDemo: true },
 ];
 
 // Mock inicial de Ordens de Serviço
@@ -18,6 +19,7 @@ const INITIAL_OS = [
   {
     id: 'os_1001',
     numeroOs: 1001,
+    isDemo: true,
     clienteNome: 'Carlos Eduardo Mendes',
     clienteWhatsapp: '21 99876-5432',
     clienteCpf: '123.456.789-00',
@@ -63,6 +65,7 @@ const INITIAL_OS = [
   {
     id: 'os_1002',
     numeroOs: 1002,
+    isDemo: true,
     clienteNome: 'Mariana Silveira',
     clienteWhatsapp: '11 98123-4567',
     clienteCpf: '987.654.321-11',
@@ -107,6 +110,7 @@ const INITIAL_OS = [
   {
     id: 'os_1003',
     numeroOs: 1003,
+    isDemo: true,
     clienteNome: 'Rodrigo Barbosa',
     clienteWhatsapp: '21 97654-3210',
     clienteCpf: '456.789.123-22',
@@ -150,20 +154,78 @@ const INITIAL_OS = [
   }
 ];
 
+const INITIAL_CAIXA = [
+  { 
+    id: 'cx_1', 
+    isDemo: true,
+    tipo: 'entrada_os', 
+    descricao: 'Quitação O.S. #1003 (iPhone 11)', 
+    valor: 30000, 
+    metodoPagamento: 'PIX', 
+    operadorNome: 'Atendente Balcão', 
+    criadoEm: new Date(Date.now() - 3600000 * 2).toISOString() 
+  }
+];
+
 export const easyCellStore = {
+  // Controle de Demonstração
+  isDemoActive: () => {
+    try {
+      if (localStorage.getItem(DEMO_STATUS_KEY) === 'true') return false;
+      const orders = easyCellStore.getOrders();
+      return orders.some(o => o.isDemo === true);
+    } catch {
+      return false;
+    }
+  },
+
+  clearDemoData: () => {
+    try {
+      localStorage.setItem(DEMO_STATUS_KEY, 'true');
+      const orders = easyCellStore.getOrders().filter(o => !o.isDemo);
+      localStorage.setItem(OS_STORAGE_KEY, JSON.stringify(orders));
+
+      const caixa = easyCellStore.getCaixa().filter(c => !c.isDemo);
+      localStorage.setItem(CAIXA_STORAGE_KEY, JSON.stringify(caixa));
+
+      window.dispatchEvent(new Event('easycell_store_updated'));
+      window.dispatchEvent(new Event('easycell_demo_cleared'));
+      return true;
+    } catch (e) {
+      console.error('Erro ao limpar dados demo:', e);
+      return false;
+    }
+  },
+
+  restoreDemoData: () => {
+    try {
+      localStorage.removeItem(DEMO_STATUS_KEY);
+      localStorage.setItem(OS_STORAGE_KEY, JSON.stringify(INITIAL_OS));
+      localStorage.setItem(ESTOQUE_STORAGE_KEY, JSON.stringify(INITIAL_ESTOQUE));
+      localStorage.setItem(CAIXA_STORAGE_KEY, JSON.stringify(INITIAL_CAIXA));
+      window.dispatchEvent(new Event('easycell_store_updated'));
+      return true;
+    } catch (e) {
+      console.error('Erro ao restaurar dados demo:', e);
+      return false;
+    }
+  },
+
   // Ordens de Serviço
   getOrders: () => {
     try {
       const raw = localStorage.getItem(OS_STORAGE_KEY);
-      if (!raw || raw === 'undefined' || raw === 'null') {
+      if (raw === null || raw === undefined || raw === 'undefined' || raw === 'null') {
+        if (localStorage.getItem(DEMO_STATUS_KEY) === 'true') {
+          return [];
+        }
         localStorage.setItem(OS_STORAGE_KEY, JSON.stringify(INITIAL_OS));
         return INITIAL_OS;
       }
       return JSON.parse(raw);
     } catch (e) {
-      console.warn('[EasyCell Store] Corrupção detectada em getOrders. Restaurando padrão.');
-      try { localStorage.setItem(OS_STORAGE_KEY, JSON.stringify(INITIAL_OS)); } catch {}
-      return INITIAL_OS;
+      console.warn('[EasyCell Store] Corrupção detectada em getOrders.');
+      return [];
     }
   },
 
@@ -297,20 +359,19 @@ export const easyCellStore = {
 
   // Caixa
   getCaixa: () => {
-    const initial = [
-      { id: 'cx_1', tipo: 'entrada_os', descricao: 'Quitação O.S. #1003 (iPhone 11)', valor: 30000, metodoPagamento: 'PIX', operadorNome: 'Atendente Balcão', criadoEm: new Date(Date.now() - 3600000 * 2).toISOString() }
-    ];
     try {
       const raw = localStorage.getItem(CAIXA_STORAGE_KEY);
-      if (!raw || raw === 'undefined' || raw === 'null') {
-        localStorage.setItem(CAIXA_STORAGE_KEY, JSON.stringify(initial));
-        return initial;
+      if (raw === null || raw === undefined || raw === 'undefined' || raw === 'null') {
+        if (localStorage.getItem(DEMO_STATUS_KEY) === 'true') {
+          return [];
+        }
+        localStorage.setItem(CAIXA_STORAGE_KEY, JSON.stringify(INITIAL_CAIXA));
+        return INITIAL_CAIXA;
       }
       return JSON.parse(raw);
     } catch (e) {
-      console.warn('[EasyCell Store] Corrupção detectada em getCaixa. Restaurando padrão.');
-      try { localStorage.setItem(CAIXA_STORAGE_KEY, JSON.stringify(initial)); } catch {}
-      return initial;
+      console.warn('[EasyCell Store] Corrupção detectada em getCaixa.');
+      return [];
     }
   },
 
