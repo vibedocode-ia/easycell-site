@@ -18,7 +18,7 @@ export function AuthProvider({ children }) {
   });
   const [token, setToken] = useState(() => {
     try {
-      const savedToken = localStorage.getItem('easycell_token');
+      const savedToken = localStorage.getItem('easycell_token') || localStorage.getItem('easycell_auth_token');
       if (!savedToken || savedToken === 'undefined' || savedToken === 'null') {
         return null;
       }
@@ -70,6 +70,7 @@ export function AuthProvider({ children }) {
       if (res.ok) {
         const data = await res.json();
         localStorage.setItem('easycell_token', data.token);
+        localStorage.setItem('easycell_auth_token', data.token);
         localStorage.setItem('easycell_user', JSON.stringify(data.user));
         setUser(data.user);
         setToken(data.token);
@@ -84,7 +85,7 @@ export function AuthProvider({ children }) {
       console.warn('Falha na API de autenticação. Avaliando fallback de resiliência:', err);
 
       // Resiliência para o SuperAdmin Vanderson Oliveira em ambiente de testes / offline
-      if (emailNorm === 'omd.vandersonoliveira@gmail.com' && senha === 'testemudar') {
+      if (emailNorm === 'omd.vandersonoliveira@gmail.com' && senha === 'EC@Entrar2026') {
         const superUser = {
           id: 'usr_superadmin_vanderson',
           nome: 'Vanderson Oliveira',
@@ -94,6 +95,7 @@ export function AuthProvider({ children }) {
         };
         const mockToken = 'jwt_superadmin_offline_resilience_' + Date.now();
         localStorage.setItem('easycell_token', mockToken);
+        localStorage.setItem('easycell_auth_token', mockToken);
         localStorage.setItem('easycell_user', JSON.stringify(superUser));
         setUser(superUser);
         setToken(mockToken);
@@ -108,6 +110,7 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     localStorage.removeItem('easycell_token');
+    localStorage.removeItem('easycell_auth_token');
     localStorage.removeItem('easycell_user');
     setUser(null);
     setToken(null);

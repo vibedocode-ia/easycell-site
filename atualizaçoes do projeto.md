@@ -1,3 +1,8 @@
+### V1.03.01 (2026-10-14) - Atualização de credenciais oficiais do SuperAdmin e sincronização bidirecional PostgreSQL/Vault
+- **Release:** Atualização de credenciais oficiais do SuperAdmin e sincronização bidirecional PostgreSQL/Vault
+
+---
+
 ### V1.03.00 (2026-10-13) - Fase 4: Ativação Completa do SaaS EasyCell (Stripe, Planos, Dunning, Viral, CRM e SDR)
 - **Release:** Fase 4: Ativação Completa do SaaS EasyCell (Stripe, Planos, Dunning, Viral, CRM e SDR)
 - **Stripe Core & Checkout:** Integração com SDK do Stripe, checkout dinâmico (`/checkout/:planId`) com suporte a Cartão de Crédito, PIX e Boleto, trial de 7 dias no plano PRO e webhook Fastify com validação de assinatura HMAC e buffer raw-body.

@@ -301,7 +301,7 @@ export default function PerfilPage() {
                     required
                     value={senhaAtual}
                     onChange={(e) => setSenhaAtual(e.target.value)}
-                    placeholder="Sua senha atual (ex: testemudar)"
+                    placeholder="Sua senha atual"
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-medium"
                   />
                   <button

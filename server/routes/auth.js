@@ -29,8 +29,8 @@ const SUPERADMIN_VANDERSON = {
   email: 'omd.vandersonoliveira@gmail.com',
   cargo: 'superadmin',
   tenantId: 'ten_easycell_matriz',
-  // Scrypt KDF derivado padrão com salt de 16 bytes
-  senhaHash: '78da9798a555121c9ec3f6d41d91d652:88a826f869a855cebb0a505683984fb45555ebbdf8a1c26c8fb69068e527488c7b5380c8194d5c7acef96bfd91726594bc7baab58daeef28ac33f5d1002fbc03'
+  // Scrypt KDF derivado padrão com salt de 16 bytes para EC@Entrar2026
+  senhaHash: '6cc26c01ee11f36d3fb87db234c375ea:649dc59a5c4e9c87ac529f478b4a9201c11aded8e684ca7d77a711d9216110a7c3fce06a6f531489f66d68973f0d679d4d97b0c71be0b57a580ea05603923880'
 };
 
 const VAULT_FILE = path.join(process.cwd(), 'storage', 'superadmin_vault.json');
@@ -71,7 +71,20 @@ export async function authRoutes(fastify, options) {
 
     // 1. Verificação prioritária do SuperAdmin Vanderson Oliveira via Scrypt KDF
     if (emailNormalizado === SUPERADMIN_VANDERSON.email) {
-      const senhaCorreta = verifyPasswordScrypt(senha, SUPERADMIN_VANDERSON.senhaHash);
+      let senhaCorreta = verifyPasswordScrypt(senha, SUPERADMIN_VANDERSON.senhaHash);
+
+      // Resiliência Postgres: se não coincidiu com a memória/vault, checa se há hash atualizado no banco
+      if (!senhaCorreta) {
+        try {
+          const userDb = await db.select().from(usuarios).where(eq(usuarios.email, emailNormalizado)).limit(1);
+          if (userDb.length > 0 && verifyPasswordScrypt(senha, userDb[0].senhaHash)) {
+            senhaCorreta = true;
+            SUPERADMIN_VANDERSON.senhaHash = userDb[0].senhaHash;
+            salvarVault();
+          }
+        } catch (dbErr) {}
+      }
+
       if (senhaCorreta) {
         const token = signJwt(
           { 
@@ -85,7 +98,7 @@ export async function authRoutes(fastify, options) {
           86400 * 7 // 7 dias
         );
 
-        // Tenta sincronizar com o Postgres se disponível
+        // Sincroniza e garante persistência no Postgres
         try {
           const userDb = await db.select().from(usuarios).where(eq(usuarios.email, emailNormalizado)).limit(1);
           if (userDb.length === 0) {
@@ -97,6 +110,11 @@ export async function authRoutes(fastify, options) {
               senhaHash: SUPERADMIN_VANDERSON.senhaHash,
               cargo: SUPERADMIN_VANDERSON.cargo,
             }).catch(() => {});
+          } else if (userDb[0].senhaHash !== SUPERADMIN_VANDERSON.senhaHash) {
+            await db.update(usuarios).set({
+              senhaHash: SUPERADMIN_VANDERSON.senhaHash,
+              atualizadoEm: new Date()
+            }).where(eq(usuarios.email, emailNormalizado)).catch(() => {});
           }
         } catch (dbSyncErr) {
           request.log.warn('Aviso: Postgres offline para sincronização de usuário, mantendo sessão em memória/JWT');
@@ -171,7 +189,16 @@ export async function authRoutes(fastify, options) {
 
     // 1. Caso SuperAdmin Vanderson Oliveira
     if (userEmail === SUPERADMIN_VANDERSON.email || userId === SUPERADMIN_VANDERSON.id) {
-      const senhaAtualValida = verifyPasswordScrypt(senhaAtual, SUPERADMIN_VANDERSON.senhaHash);
+      let senhaAtualValida = verifyPasswordScrypt(senhaAtual, SUPERADMIN_VANDERSON.senhaHash);
+      if (!senhaAtualValida) {
+        try {
+          const userDb = await db.select().from(usuarios).where(eq(usuarios.email, userEmail)).limit(1);
+          if (userDb.length > 0 && verifyPasswordScrypt(senhaAtual, userDb[0].senhaHash)) {
+            senhaAtualValida = true;
+          }
+        } catch (e) {}
+      }
+
       if (!senhaAtualValida) {
         return reply.status(401).send({ error: 'Senha atual incorreta' });
       }
