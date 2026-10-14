@@ -1,7 +1,7 @@
 {
   "name": "site-new",
   "private": true,
-  "version": "1.02.04",
+  "version": "1.03.00",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,7 +9,9 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "api": "tsx server/index.js",
-    "test": "tsx server/test_remediation.js"
+    "test": "tsx server/test_remediation.js",
+    "test:saas": "tsx server/test_saas_fase4.js",
+    "test:all": "tsx server/test_remediation.js && tsx server/test_saas_fase4.js"
   },
   "dependencies": {
     "@fastify/cors": "^11.3.1",
@@ -24,6 +26,7 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.4",
+    "stripe": "^23.0.0",
     "tsx": "^4.23.15",
     "zod": "^4.6.7"
   },

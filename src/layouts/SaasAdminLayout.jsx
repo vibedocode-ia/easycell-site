@@ -14,7 +14,11 @@ import {
   Smartphone,
   ExternalLink,
   Activity,
-  Server
+  Server,
+  DollarSign,
+  Gift,
+  HelpCircle,
+  Bot
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { VERSION } from '../lib/version';
@@ -30,6 +34,12 @@ export default function SaasAdminLayout() {
 
   const navItems = [
     { label: 'Visão Geral & Inquilinos', path: '/admin/saas', icon: Building2 },
+    { label: 'Criador de Planos', path: '/admin/saas/planos', icon: Layers },
+    { label: 'Gerenciador Financeiro', path: '/admin/saas/financeiro', icon: DollarSign },
+    { label: 'CRM & Pipeline de Leads', path: '/admin/saas/crm', icon: Users },
+    { label: 'Programa de Indicações', path: '/admin/saas/indicacoes', icon: Gift },
+    { label: 'Central de Suporte', path: '/admin/saas/suporte', icon: HelpCircle },
+    { label: 'SofIA SDR (WhatsApp)', path: '/admin/saas/sofia-sdr', icon: Bot },
     { label: 'Gestão de Filiais Globais', path: '/system/lojas', icon: Store },
     { label: 'Meu Perfil & Segurança', path: '/system/perfil', icon: User },
   ];

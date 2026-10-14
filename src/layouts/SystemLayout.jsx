@@ -1,16 +1,35 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import SystemSidebar from './SystemSidebar';
 import StoreSelector from '../components/StoreSelector';
+import BlockOverlay from '../components/BlockOverlay';
 import { PlusCircle, Search, Building2, ArrowLeft, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function SystemLayout() {
   const { user } = useAuth();
   const isSuperadmin = user?.cargo === 'superadmin';
+  const [subStatus, setSubStatus] = useState('active');
+
+  useEffect(() => {
+    const token = localStorage.getItem('easycell_auth_token') || sessionStorage.getItem('easycell_auth_token');
+    if (token) {
+      fetch('/api/v1/billing/subscription', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((r) => r.json())
+        .then((d) => {
+          if (d.subscription?.status) setSubStatus(d.subscription.status);
+        })
+        .catch(() => {});
+    }
+  }, []);
 
   return (
     <div className="flex min-h-screen bg-[#030611] text-slate-100 font-sans selection:bg-cyan-500 selection:text-black">
+      {/* Overlay de Inadimplência e Bloqueio Suave (ativo se past_due ou suspended) */}
+      <BlockOverlay status={subStatus} onQuitado={() => setSubStatus('active')} />
+
       {/* Sidebar Fixa Lateral */}
       <SystemSidebar />
 

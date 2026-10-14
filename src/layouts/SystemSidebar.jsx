@@ -16,7 +16,10 @@ import {
   Store,
   Building2,
   User,
-  ArrowRight
+  ArrowRight,
+  CreditCard,
+  Gift,
+  HelpCircle
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { VERSION } from '../lib/version';
@@ -40,6 +43,9 @@ export default function SystemSidebar() {
     { label: 'Automações WhatsApp', path: '/system/automacoes', icon: Bot },
     { label: 'Estoque Triplo', path: '/system/estoque', icon: Package },
     { label: 'Frente de Caixa', path: '/system/caixa', icon: DollarSign },
+    { label: 'Minha Assinatura', path: '/system/assinatura', icon: CreditCard },
+    { label: 'Indique e Ganhe', path: '/system/indicar', icon: Gift },
+    { label: 'Suporte Técnico', path: '/system/suporte', icon: HelpCircle },
     { label: 'Configurações', path: '/system/configuracoes', icon: Settings },
     { label: 'Meu Perfil', path: '/system/perfil', icon: User },
   ];

@@ -9,12 +9,26 @@ import { whatsappRoutes } from './routes/whatsapp.js';
 import { laudosRoutes } from './routes/laudos.js';
 import { tecnicosRoutes } from './routes/tecnicos.js';
 import { tenantsRoutes } from './routes/tenants.js';
+import { billingRoutes } from './routes/billing.js';
+import { saasRoutes } from './routes/saas.js';
 
 const pkg = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 
 export function buildServer() {
   const server = Fastify({
     logger: true,
+  });
+
+  // Captura do corpo bruto (Raw Body) para verificação de assinaturas criptográficas (Stripe e Webhooks)
+  server.addContentTypeParser('application/json', { parseAs: 'buffer' }, (req, body, done) => {
+    try {
+      req.rawBody = body;
+      const json = JSON.parse(body.toString('utf8'));
+      done(null, json);
+    } catch (err) {
+      err.statusCode = 400;
+      done(err, undefined);
+    }
   });
 
   // CORS seguro e restrito a domínios autorizados
@@ -78,6 +92,8 @@ export function buildServer() {
   server.register(laudosRoutes);
   server.register(tecnicosRoutes);
   server.register(tenantsRoutes);
+  server.register(billingRoutes);
+  server.register(saasRoutes);
 
   return server;
 }

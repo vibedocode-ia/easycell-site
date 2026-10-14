@@ -1,3 +1,16 @@
+### V1.03.00 (2026-10-13) - Fase 4: Ativação Completa do SaaS EasyCell (Stripe, Planos, Dunning, Viral, CRM e SDR)
+- **Release:** Fase 4: Ativação Completa do SaaS EasyCell (Stripe, Planos, Dunning, Viral, CRM e SDR)
+- **Stripe Core & Checkout:** Integração com SDK do Stripe, checkout dinâmico (`/checkout/:planId`) com suporte a Cartão de Crédito, PIX e Boleto, trial de 7 dias no plano PRO e webhook Fastify com validação de assinatura HMAC e buffer raw-body.
+- **Dunning & Grace Period (7 Dias):** Motor de inadimplência suave com tolerância de 7 dias para regularização, registro auditável de tentativas em `dunning_logs`, bloqueio não-destrutivo com `BlockOverlay` e desbloqueio imediato na quitação de fatura.
+- **Motor de Indicação Viral:** Captura de parceiros via `/r/:slug`, tracking dinâmico e regras de bonificação (3 trials = 1 mês grátis; 1 conversão paga = 1 mês grátis) com aplicação de desconto na próxima fatura.
+- **CRM Comercial & Funil Kanban:** Painel executivo `/admin/saas/crm` para gestão do pipeline de leads com lead scoring, filtros por temperatura (frio, morno, quente) e drawer de notas e histórico.
+- **SofIA SDR & WhatsApp:** Campanhas de prospecção com taxa de envio controlada anti-banimento (1 msg/s), templates parametrizados (`{{nome}}`, `{{empresa}}`) e métricas de conversão.
+- **Central de Suporte & SLA:** Chamados com isolamento estrito por inquilino (`/system/suporte`), painel centralizador para o Super Admin (`/admin/saas/suporte`), cálculo de SLA por prioridade e thread estilo chat.
+- **Gestão de Assinatura:** Página do assinante (`/system/assinatura`) com upgrade pro-rata sem interrupção de serviço, histórico de consumo e link para o Stripe Customer Portal.
+- **Suíte de Testes E2E & Hardening:** Teste ponta a ponta `test_saas_fase4.js` com 100% de aprovação nos 7 fluxos críticos, zero regressões em fases anteriores e build de produção validado.
+
+---
+
 ### V1.02.04 (2026-10-13) - Console Executivo SaasAdminLayout, Redirecionamento Direto do SuperAdmin e Higienização do Portal de Login
 - **Release:** Console Executivo SaasAdminLayout, Redirecionamento Direto do SuperAdmin e Higienização do Portal de Login
 - **SaasAdminLayout:** Criação do layout executivo dedicado para o Super Admin SaaS (`/admin/saas`), separando a interface administrativa de plataforma B2B da visão operacional de bancada/assistência técnica de conserto.

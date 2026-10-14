@@ -1,3 +1,3 @@
-export const VERSION = 'V1.02.04';
-export const APP_VERSION = '1.02.04';
+export const VERSION = 'V1.03.00';
+export const APP_VERSION = '1.03.00';
 export const APP_VERSION_DATE = '2026-10-13';
