@@ -1,3 +1,8 @@
+### V1.03.04 (2026-10-14) - Tour interativo não-intrusivo com navegação em tempo real e visão desobstruída
+- **Release:** Tour interativo não-intrusivo com navegação em tempo real e visão desobstruída
+
+---
+
 ### V1.03.03 (2026-10-14) - Tour interativo guiado e controle de dados demonstrativos
 - **Release:** Tour interativo guiado e controle de dados demonstrativos
 - **Sinalização Clara de Conteúdo Demonstrativo:**
