@@ -39,16 +39,37 @@ export function verifyJwt(token, secret) {
   }
 }
 
-// Middleware: Autenticação de Usuário (Admin, Atendente, Técnico) via Bearer JWT
+// Middleware: Autenticação de Usuário (Admin, Atendente, Técnico) via Bearer JWT (Clerk + Legado)
 export async function authenticateUser(request, reply) {
-  const jwtSecret = process.env.JWT_SECRET || DEFAULT_JWT_SECRET;
-
   const authHeader = request.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return reply.status(401).send({ error: 'Acesso não autorizado: Token Bearer ausente' });
   }
 
   const token = authHeader.split(' ')[1];
+
+  // 1. Verificação prioritária via Token de Sessão Clerk
+  if (process.env.CLERK_SECRET_KEY) {
+    try {
+      const { verifyClerkSessionToken, getClerkUserDetails, syncClerkUserWithEasyCell } = await import('../lib/clerk.js');
+      const clerkClaims = await verifyClerkSessionToken(token);
+      if (clerkClaims && clerkClaims.sub) {
+        const clerkDetails = await getClerkUserDetails(clerkClaims.sub);
+        if (clerkDetails) {
+          const syncedUser = await syncClerkUserWithEasyCell(clerkDetails);
+          if (syncedUser) {
+            request.user = syncedUser;
+            return;
+          }
+        }
+      }
+    } catch (clerkErr) {
+      request.log?.warn?.({ clerkErr }, 'Aviso: Falha na verificação de token Clerk, avaliando fallback local');
+    }
+  }
+
+  // 2. Fallback resiliente: Validação do JWT nativo EasyCell
+  const jwtSecret = process.env.JWT_SECRET || DEFAULT_JWT_SECRET;
   const payload = verifyJwt(token, jwtSecret);
   if (!payload) {
     return reply.status(401).send({ error: 'Sessão inválida ou expirada. Faça login novamente.' });

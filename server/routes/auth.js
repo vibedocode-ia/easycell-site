@@ -292,6 +292,14 @@ export async function authRoutes(fastify, options) {
     return reply.send({ user: userResp });
   });
 
+  // Sincronização explícita da sessão Clerk
+  fastify.post('/api/v1/auth/clerk-sync', { preHandler: [authenticateUser] }, async (request, reply) => {
+    return reply.send({
+      sucesso: true,
+      user: request.user,
+    });
+  });
+
   // Atualizar senha do usuário autenticado (com Scrypt KDF)
   fastify.put('/api/v1/auth/senha', { preHandler: [authenticateUser] }, async (request, reply) => {
     const { senhaAtual, novaSenha } = request.body || {};

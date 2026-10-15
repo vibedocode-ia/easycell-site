@@ -20,6 +20,7 @@ import {
 import confetti from 'canvas-confetti';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import { Show, UserButton } from '@clerk/react';
 import { VERSION } from '../../lib/version';
 
 export default function LandingPage() {
@@ -111,24 +112,35 @@ export default function LandingPage() {
           </nav>
 
           <div className="flex items-center space-x-2 sm:space-x-4 shrink-0">
-            <a 
-              href="/admin" 
-              className="text-[11px] sm:text-xs font-bold text-slate-300 hover:text-cyan-400 transition-colors px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-slate-800 hover:border-cyan-500/40 bg-slate-900/60 shrink-0"
-            >
-              <span className="hidden sm:inline">Área do Lojista</span>
-              <span className="sm:hidden">Lojista</span>
-            </a>
-            <a 
-              href="#vip"
-              className="relative group px-3.5 sm:px-6 py-1.5 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold overflow-hidden transition-all duration-300 shadow-lg shadow-cyan-500/20 active:scale-95 shrink-0"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600 group-hover:from-cyan-400 group-hover:to-blue-500 transition-all" />
-              <span className="relative text-slate-950 flex items-center gap-1.5 sm:gap-2 font-black">
-                <span>Acesso VIP</span>
-                <span className="hidden sm:inline">Antecipado</span>
-                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
-              </span>
-            </a>
+            <Show when="signed-in">
+              <a 
+                href="/system" 
+                className="text-[11px] sm:text-xs font-bold text-cyan-300 hover:text-white transition-colors px-3 py-1.5 sm:py-2 rounded-lg border border-cyan-500/40 bg-cyan-950/40 shrink-0 flex items-center gap-1.5"
+              >
+                <span>Acessar Painel</span>
+              </a>
+              <UserButton afterSignOutUrl="/" />
+            </Show>
+            <Show when="signed-out">
+              <a 
+                href="/admin" 
+                className="text-[11px] sm:text-xs font-bold text-slate-300 hover:text-cyan-400 transition-colors px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-slate-800 hover:border-cyan-500/40 bg-slate-900/60 shrink-0"
+              >
+                <span className="hidden sm:inline">Área do Lojista</span>
+                <span className="sm:hidden">Lojista</span>
+              </a>
+              <a 
+                href="#vip"
+                className="relative group px-3.5 sm:px-6 py-1.5 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold overflow-hidden transition-all duration-300 shadow-lg shadow-cyan-500/20 active:scale-95 shrink-0"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600 group-hover:from-cyan-400 group-hover:to-blue-500 transition-all" />
+                <span className="relative text-slate-950 flex items-center gap-1.5 sm:gap-2 font-black">
+                  <span>Acesso VIP</span>
+                  <span className="hidden sm:inline">Antecipado</span>
+                  <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
+                </span>
+              </a>
+            </Show>
           </div>
         </div>
       </header>

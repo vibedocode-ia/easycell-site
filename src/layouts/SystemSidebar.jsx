@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { VERSION } from '../lib/version';
+import { UserButton } from '@clerk/react';
 
 export default function SystemSidebar({ isOpen, onClose }) {
   const { user, logout } = useAuth();
@@ -180,12 +181,12 @@ export default function SystemSidebar({ isOpen, onClose }) {
           </span>
         </button>
 
-        <NavLink
-          to="/system/perfil"
-          className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-cyan-500/40 transition-all mb-2 group cursor-pointer"
-        >
-          <div className="flex items-center gap-2.5 truncate">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500/20 to-blue-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-bold text-xs font-mono group-hover:scale-105 transition-transform">
+        <div className="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-cyan-500/40 transition-all mb-2 group">
+          <NavLink
+            to="/system/perfil"
+            className="flex items-center gap-2.5 truncate flex-1 cursor-pointer"
+          >
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500/20 to-blue-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-bold text-xs font-mono group-hover:scale-105 transition-transform shrink-0">
               {user?.nome?.[0] || 'V'}
             </div>
             <div className="truncate">
@@ -195,8 +196,11 @@ export default function SystemSidebar({ isOpen, onClose }) {
                 <span className="text-cyan-400 font-semibold">• Perfil</span>
               </div>
             </div>
+          </NavLink>
+          <div className="shrink-0 ml-1.5 flex items-center">
+            <UserButton afterSignOutUrl="/admin" />
           </div>
-        </NavLink>
+        </div>
 
         <button
           onClick={handleLogout}

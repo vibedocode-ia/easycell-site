@@ -1,3 +1,4 @@
+import './lib/env.js';
 import fs from 'node:fs';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';

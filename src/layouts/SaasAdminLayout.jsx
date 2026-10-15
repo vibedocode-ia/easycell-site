@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { VERSION } from '../lib/version';
+import { UserButton } from '@clerk/react';
 import SaasBottomNav from '../components/SaasBottomNav';
 
 export default function SaasAdminLayout() {
@@ -136,23 +137,28 @@ export default function SaasAdminLayout() {
 
       {/* Rodapé: Perfil SuperAdmin & Logout */}
       <div className="p-3.5 md:p-4 border-t border-slate-800/80 bg-slate-950/60 shrink-0">
-        <NavLink
-          to="/system/perfil"
-          onClick={() => isMobile && setMobileMenuOpen(false)}
-          className="flex items-center space-x-3 mb-2.5 p-2 rounded-xl hover:bg-slate-800/50 transition-colors group cursor-pointer"
-        >
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-slate-950 font-black text-xs font-mono shadow-md shadow-cyan-500/20 group-hover:scale-105 transition-transform shrink-0">
-            {user?.nome ? user.nome.slice(0, 2).toUpperCase() : 'SA'}
+        <div className="flex items-center justify-between p-1.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-cyan-500/40 transition-all mb-2.5 group">
+          <NavLink
+            to="/system/perfil"
+            onClick={() => isMobile && setMobileMenuOpen(false)}
+            className="flex items-center space-x-3 p-1 rounded-lg flex-1 min-w-0 cursor-pointer"
+          >
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-slate-950 font-black text-xs font-mono shadow-md shadow-cyan-500/20 group-hover:scale-105 transition-transform shrink-0">
+              {user?.nome ? user.nome.slice(0, 2).toUpperCase() : 'SA'}
+            </div>
+            <div className="flex flex-col min-w-0 flex-1">
+              <span className="text-xs font-bold text-slate-200 truncate group-hover:text-cyan-300">
+                {user?.nome || 'Superadmin'}
+              </span>
+              <span className="text-[10px] text-amber-400 font-mono font-medium flex items-center gap-1">
+                <Sparkles className="w-2.5 h-2.5" /> Super Admin SaaS
+              </span>
+            </div>
+          </NavLink>
+          <div className="shrink-0 ml-1.5 flex items-center">
+            <UserButton afterSignOutUrl="/admin" />
           </div>
-          <div className="flex flex-col min-w-0 flex-1">
-            <span className="text-xs font-bold text-slate-200 truncate group-hover:text-cyan-300">
-              {user?.nome || 'Superadmin'}
-            </span>
-            <span className="text-[10px] text-amber-400 font-mono font-medium flex items-center gap-1">
-              <Sparkles className="w-2.5 h-2.5" /> Super Admin SaaS
-            </span>
-          </div>
-        </NavLink>
+        </div>
 
         <button
           onClick={() => {

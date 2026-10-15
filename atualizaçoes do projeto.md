@@ -1,3 +1,8 @@
+### V1.03.08 (2026-10-15) - Integracao Oficial Clerk Auth SSO, Multi-Tenant e Fallback Bancada
+- **Release:** Integracao Oficial Clerk Auth SSO, Multi-Tenant e Fallback Bancada
+
+---
+
 ### V1.03.07 (2026-10-15) - Scrollbars cyberpunk estilizadas, cards 100% clicáveis, Kanban touch-first mobile e dashboard compacto
 - **Release:** Scrollbars cyberpunk estilizadas, cards 100% clicáveis, Kanban touch-first mobile e dashboard compacto
 
