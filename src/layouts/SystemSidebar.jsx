@@ -1,5 +1,5 @@
-import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Smartphone, 
   LayoutDashboard, 
@@ -8,26 +8,47 @@ import {
   Package, 
   DollarSign, 
   LogOut, 
-  ShieldCheck,
-  ChevronRight,
-  Bot,
-  Users,
-  Settings,
-  Store,
-  Building2,
-  User,
-  ArrowRight,
-  CreditCard,
-  Gift,
-  HelpCircle
+  ShieldCheck, 
+  ChevronRight, 
+  Bot, 
+  Users, 
+  Settings, 
+  Store, 
+  Building2, 
+  User, 
+  ArrowRight, 
+  CreditCard, 
+  Gift, 
+  HelpCircle,
+  X
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { VERSION } from '../lib/version';
 
-export default function SystemSidebar() {
+export default function SystemSidebar({ isOpen, onClose }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const isSuperadmin = user?.cargo === 'superadmin';
+
+  // Fecha o drawer automaticamente ao mudar de rota no mobile
+  useEffect(() => {
+    if (isOpen && onClose) {
+      onClose();
+    }
+  }, [location.pathname]);
+
+  // Trava o scroll do body quando o menu mobile está aberto
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
 
   const handleLogout = () => {
     logout();
@@ -50,13 +71,13 @@ export default function SystemSidebar() {
     { label: 'Meu Perfil', path: '/system/perfil', icon: User, tourKey: 'meu-perfil' },
   ];
 
-  return (
-    <aside className="w-64 bg-[#050914] border-r border-slate-800/80 flex flex-col justify-between shrink-0 min-h-screen">
-      <div>
+  const sidebarContent = (
+    <div className="flex flex-col justify-between h-full min-h-full">
+      <div className="overflow-y-auto flex-1">
         {/* Brand Header */}
-        <div className="h-20 flex items-center px-6 border-b border-slate-800/80">
+        <div className="h-16 md:h-20 flex items-center justify-between px-6 border-b border-slate-800/80 sticky top-0 bg-[#050914] z-10">
           <NavLink to={isSuperadmin ? "/admin/saas" : "/system"} className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 border border-cyan-300/40">
+            <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 border border-cyan-300/40">
               <Smartphone className="w-5 h-5 text-white" />
             </div>
             <div className="flex flex-col">
@@ -68,6 +89,17 @@ export default function SystemSidebar() {
               </span>
             </div>
           </NavLink>
+
+          {/* Botão de Fechar no Mobile */}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="md:hidden text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800/60 transition cursor-pointer"
+              title="Fechar Menu"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
 
         {/* Card Destaque: Retorno ao Super Admin SaaS se logado como SuperAdmin */}
@@ -94,8 +126,8 @@ export default function SystemSidebar() {
         )}
 
         {/* Navigation Links */}
-        <nav className="p-4 space-y-1.5">
-          <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+        <nav className="p-4 space-y-1">
+          <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">
             {isSuperadmin ? 'Menu da Assistência (Visão Cliente)' : 'Navegação Principal'}
           </div>
           {navItems.map((item) => {
@@ -107,7 +139,7 @@ export default function SystemSidebar() {
                 end={item.path === '/system'}
                 data-tour={item.tourKey}
                 className={({ isActive }) => `
-                  flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-semibold transition-all group
+                  flex items-center justify-between px-3.5 py-2.5 md:py-3 rounded-xl text-xs font-semibold transition-all group
                   ${item.highlight ? 'bg-gradient-to-r from-cyan-500/20 to-blue-600/10 border border-cyan-500/40 text-cyan-300 hover:border-cyan-400' : ''}
                   ${isActive && !item.highlight ? 'bg-slate-800/90 text-cyan-400 border border-slate-700/80 shadow-md shadow-cyan-500/5' : ''}
                   ${!isActive && !item.highlight ? 'text-slate-400 hover:text-white hover:bg-slate-900/60' : ''}
@@ -129,11 +161,14 @@ export default function SystemSidebar() {
       </div>
 
       {/* User Card, Tutorial & Logout */}
-      <div className="p-4 border-t border-slate-800/80 bg-slate-950/40">
+      <div className="p-4 border-t border-slate-800/80 bg-slate-950/40 shrink-0">
         {/* Botão de Tutorial Fixo na Barra Lateral */}
         <button
           type="button"
-          onClick={() => window.dispatchEvent(new CustomEvent('easycell_open_tour'))}
+          onClick={() => {
+            if (onClose) onClose();
+            window.dispatchEvent(new CustomEvent('easycell_open_tour'));
+          }}
           className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-300 hover:text-cyan-300 bg-slate-900/60 hover:bg-cyan-950/40 border border-slate-800 hover:border-cyan-500/40 transition-all cursor-pointer mb-2.5 group"
         >
           <div className="flex items-center gap-2.5">
@@ -175,6 +210,31 @@ export default function SystemSidebar() {
           EasyCell <span className="text-cyan-400 opacity-60">{VERSION}</span>
         </div>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* 1. Desktop Sidebar (Fixo e Visível apenas em Telas Médias/Grandes) */}
+      <aside className="hidden md:flex w-64 bg-[#050914] border-r border-slate-800/80 flex-col justify-between shrink-0 min-h-screen sticky top-0 h-screen">
+        {sidebarContent}
+      </aside>
+
+      {/* 2. Mobile Drawer Slide-Over (Ativo sob demanda no celular) */}
+      {isOpen && (
+        <div className="fixed inset-0 z-50 md:hidden flex">
+          {/* Backdrop Escurecido com Blur */}
+          <div 
+            onClick={onClose}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity animate-in fade-in duration-200"
+          />
+
+          {/* Gaveta Lateral Deslizante */}
+          <aside className="relative w-72 max-w-[85vw] bg-[#050914] border-r border-slate-800/80 shadow-2xl z-10 flex flex-col h-full animate-in slide-in-from-left duration-300">
+            {sidebarContent}
+          </aside>
+        </div>
+      )}
+    </>
   );
 }

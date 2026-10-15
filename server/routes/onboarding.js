@@ -6,7 +6,8 @@ import { tenants, lojas } from '../../src/db/schema/tenants.js';
 import { usuarios } from '../../src/db/schema/auth.js';
 import { eq } from 'drizzle-orm';
 import { signJwt, authenticateUser, requireRole } from '../middleware/auth.js';
-import { hashPasswordScrypt } from './auth.js';
+import { hashPasswordScrypt, salvarUserVault } from './auth.js';
+import { salvarTenantVault } from './tenants.js';
 
 const INVITES_FILE = path.join(process.cwd(), 'storage', 'onboarding_invites.json');
 
@@ -161,12 +162,35 @@ export async function onboardingRoutes(fastify, options) {
 
     const emailNormalizado = email.toLowerCase().trim();
     const senhaHash = hashPasswordScrypt(senha);
-    const userId = `usr_${crypto.randomBytes(8).toString('hex')}`;
+    const userId = crypto.randomUUID();
     const lojaId = `loj_${invite.slug}_matriz`;
 
-    // 1. Gravação no PostgreSQL (com fallback gracioso em memória)
+    // 1. Salva imediatamente no cofre persistente de Usuários e Tenants (Garante que nunca suma!)
+    salvarUserVault({
+      id: userId,
+      tenantId: invite.tenantId,
+      lojaId,
+      nome: nomeResponsavel,
+      email: emailNormalizado,
+      senhaHash,
+      cargo: 'admin',
+      telefone: telefone || invite.telefone
+    });
+
+    salvarTenantVault({
+      id: invite.tenantId,
+      nomeEmpresa: invite.nomeEmpresa,
+      slug: invite.slug,
+      cnpj: cnpjOuCpf || null,
+      emailResponsavel: emailNormalizado,
+      telefone: telefone || invite.telefone,
+      plano: invite.plano || 'pro',
+      statusAssinatura: 'ativa'
+    });
+
+    // 2. Gravação no PostgreSQL
     try {
-      // Cria o usuário administrador do Tenant
+      // Cria o usuário administrador do Tenant no PostgreSQL
       await db.insert(usuarios).values({
         id: userId,
         tenantId: invite.tenantId,
@@ -174,7 +198,8 @@ export async function onboardingRoutes(fastify, options) {
         nome: nomeResponsavel,
         email: emailNormalizado,
         senhaHash,
-        cargo: 'admin'
+        cargo: 'admin',
+        telefone: telefone || invite.telefone
       }).catch(err => {
         request.log.warn({ err }, 'Aviso: Falha ao inserir usuário no Postgres durante onboarding');
       });
@@ -202,10 +227,10 @@ export async function onboardingRoutes(fastify, options) {
         atualizadoEm: new Date()
       }).where(eq(lojas.id, lojaId)).catch(() => {});
     } catch (dbErr) {
-      request.log.warn({ dbErr }, 'Aviso: Banco offline no onboarding, operando com resiliência');
+      request.log.warn({ dbErr }, 'Aviso: Banco offline no onboarding, operando com resiliência de cofre');
     }
 
-    // 2. Marca o convite como concluído
+    // 3. Marca o convite como concluído
     invite.status = 'concluido';
     invite.usadoEm = new Date().toISOString();
     invite.userIdCriado = userId;

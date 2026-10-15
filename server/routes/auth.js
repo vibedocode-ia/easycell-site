@@ -35,6 +35,7 @@ const SUPERADMIN_VANDERSON = {
 };
 
 const VAULT_FILE = path.join(process.cwd(), 'storage', 'superadmin_vault.json');
+const USERS_VAULT_FILE = path.join(process.cwd(), 'storage', 'users_vault.json');
 
 function carregarVault() {
   try {
@@ -57,6 +58,47 @@ function salvarVault() {
 }
 
 carregarVault();
+
+// Cofre de Usuários Operacionais (Lojistas, Técnicos e Atendentes)
+let memoryUsersVault = [];
+
+export function carregarUsersVault() {
+  try {
+    if (fs.existsSync(USERS_VAULT_FILE)) {
+      const data = JSON.parse(fs.readFileSync(USERS_VAULT_FILE, 'utf8'));
+      if (Array.isArray(data)) memoryUsersVault = data;
+    }
+  } catch (e) {
+    console.warn('Aviso: Falha ao carregar users_vault.json');
+  }
+  return memoryUsersVault;
+}
+
+export function salvarUserVault(userObj) {
+  try {
+    carregarUsersVault();
+    const emailNorm = (userObj.email || '').toLowerCase().trim();
+    const idx = memoryUsersVault.findIndex(u => (u.email && u.email.toLowerCase().trim() === emailNorm) || u.id === userObj.id);
+    if (idx >= 0) {
+      memoryUsersVault[idx] = { ...memoryUsersVault[idx], ...userObj, atualizadoEm: new Date().toISOString() };
+    } else {
+      memoryUsersVault.push({ ...userObj, criadoEm: userObj.criadoEm || new Date().toISOString(), atualizadoEm: new Date().toISOString() });
+    }
+    const dir = path.dirname(USERS_VAULT_FILE);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(USERS_VAULT_FILE, JSON.stringify(memoryUsersVault, null, 2), 'utf8');
+  } catch (e) {
+    console.warn('Aviso: Falha ao gravar users_vault.json');
+  }
+}
+
+export function buscarUserVault(email) {
+  carregarUsersVault();
+  const emailNorm = (email || '').toLowerCase().trim();
+  return memoryUsersVault.find(u => (u.email || '').toLowerCase().trim() === emailNorm);
+}
+
+carregarUsersVault();
 
 export async function authRoutes(fastify, options) {
   // Login estrito: Fail-Closed total, autenticação Scrypt KDF e provisionamento do SuperAdmin
@@ -139,46 +181,114 @@ export async function authRoutes(fastify, options) {
       }
     }
 
-    // 2. Verificação de usuários operacionais no PostgreSQL
+    // 2. Verificação de usuários operacionais (PostgreSQL + Cofre Resiliente)
+    let authenticatedUser = null;
+
     try {
       const userList = await db.select().from(usuarios).where(eq(usuarios.email, emailNormalizado)).limit(1);
-
-      if (userList.length === 0) {
-        return reply.status(401).send({ error: 'Credenciais inválidas' });
+      if (userList.length > 0) {
+        const user = userList[0];
+        if (verifyPasswordScrypt(senha, user.senhaHash)) {
+          authenticatedUser = {
+            id: user.id,
+            email: user.email,
+            nome: user.nome,
+            cargo: user.cargo,
+            tenantId: user.tenantId,
+            lojaId: user.lojaId,
+            telefone: user.telefone
+          };
+          // Mantém cofre em sincronia com o banco
+          salvarUserVault(user);
+        }
       }
-
-      const user = userList[0];
-      const senhaValida = verifyPasswordScrypt(senha, user.senhaHash);
-
-      if (!senhaValida) {
-        return reply.status(401).send({ error: 'Credenciais inválidas' });
-      }
-
-      const token = signJwt(
-        { id: user.id, email: user.email, nome: user.nome, cargo: user.cargo, tenantId: user.tenantId },
-        jwtSecret,
-        86400 * 7 // 7 dias
-      );
-
-      return reply.send({
-        sucesso: true,
-        token,
-        user: { id: user.id, email: user.email, nome: user.nome, cargo: user.cargo, tenantId: user.tenantId }
-      });
-    } catch (err) {
-      request.log.error(err, 'Falha ao autenticar usuário no PostgreSQL');
-      return reply.status(503).send({ error: 'Serviço de banco de dados indisponível no momento' });
+    } catch (dbErr) {
+      request.log.warn({ dbErr }, 'Aviso: Banco offline na autenticação, buscando no cofre');
     }
+
+    // Se o banco falhou ou não encontrou, checa no cofre persistente
+    if (!authenticatedUser) {
+      const vaulted = buscarUserVault(emailNormalizado);
+      if (vaulted && verifyPasswordScrypt(senha, vaulted.senhaHash)) {
+        authenticatedUser = {
+          id: vaulted.id,
+          email: vaulted.email,
+          nome: vaulted.nome,
+          cargo: vaulted.cargo,
+          tenantId: vaulted.tenantId,
+          lojaId: vaulted.lojaId,
+          telefone: vaulted.telefone
+        };
+      }
+    }
+
+    if (!authenticatedUser) {
+      return reply.status(401).send({ error: 'Credenciais inválidas' });
+    }
+
+    const token = signJwt(
+      { 
+        id: authenticatedUser.id, 
+        email: authenticatedUser.email, 
+        nome: authenticatedUser.nome, 
+        cargo: authenticatedUser.cargo, 
+        tenantId: authenticatedUser.tenantId,
+        lojaId: authenticatedUser.lojaId
+      },
+      jwtSecret,
+      86400 * 7 // 7 dias
+    );
+
+    return reply.send({
+      sucesso: true,
+      token,
+      user: authenticatedUser
+    });
   });
 
-  // Perfil da sessão autenticada
+  // Perfil da sessão autenticada (com fallback resiliente)
   fastify.get('/api/v1/auth/me', { preHandler: [authenticateUser] }, async (request, reply) => {
     let userResp = { ...request.user };
     if (request.user?.id === SUPERADMIN_VANDERSON.id || request.user?.email === SUPERADMIN_VANDERSON.email) {
       userResp.nome = SUPERADMIN_VANDERSON.nome;
       userResp.email = SUPERADMIN_VANDERSON.email;
       userResp.telefone = SUPERADMIN_VANDERSON.telefone;
+      return reply.send({ user: userResp });
     }
+
+    try {
+      const userList = await db.select().from(usuarios).where(eq(usuarios.id, request.user.id)).limit(1);
+      if (userList.length > 0) {
+        const u = userList[0];
+        return reply.send({
+          user: {
+            id: u.id,
+            email: u.email,
+            nome: u.nome,
+            cargo: u.cargo,
+            tenantId: u.tenantId,
+            lojaId: u.lojaId,
+            telefone: u.telefone
+          }
+        });
+      }
+    } catch (e) {}
+
+    const vaulted = buscarUserVault(request.user?.email);
+    if (vaulted) {
+      return reply.send({
+        user: {
+          id: vaulted.id,
+          email: vaulted.email,
+          nome: vaulted.nome,
+          cargo: vaulted.cargo,
+          tenantId: vaulted.tenantId,
+          lojaId: vaulted.lojaId,
+          telefone: vaulted.telefone
+        }
+      });
+    }
+
     return reply.send({ user: userResp });
   });
 

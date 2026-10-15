@@ -19,12 +19,13 @@ import { VERSION } from '../../lib/version';
 
 export default function PerfilPage() {
   const { user, login, updateUser } = useAuth();
+  const isSuperadmin = user?.cargo === 'superadmin';
 
   // Dados do formulário de perfil
-  const [nome, setNome] = useState(user?.nome || 'Vanderson Oliveira');
-  const [email, setEmail] = useState(user?.email || 'omd.vandersonoliveira@gmail.com');
+  const [nome, setNome] = useState(user?.nome || '');
+  const [email, setEmail] = useState(user?.email || '');
   const [telefone, setTelefone] = useState(
-    user?.telefone || user?.whatsapp || localStorage.getItem('easycell_user_telefone') || '(21) 99975-7549'
+    user?.telefone || user?.whatsapp || localStorage.getItem('easycell_user_telefone') || ''
   );
   const [salvandoPerfil, setSalvandoPerfil] = useState(false);
   const [msgPerfil, setMsgPerfil] = useState({ tipo: '', texto: '' });
@@ -35,6 +36,15 @@ export default function PerfilPage() {
     if (user?.email) setEmail(user.email);
     if (user?.telefone) setTelefone(user.telefone);
   }, [user]);
+
+  // Iniciais do avatar
+  const iniciais = (nome || user?.nome || 'EC')
+    .split(' ')
+    .filter(Boolean)
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
 
   // Dados do formulário de senha
   const [senhaAtual, setSenhaAtual] = useState('');
@@ -136,22 +146,22 @@ export default function PerfilPage() {
   };
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto">
+    <div className="space-y-6 sm:space-y-8 max-w-5xl mx-auto w-full min-w-0">
       {/* Cabeçalho */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b border-slate-800 pb-5 sm:pb-6">
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono font-semibold mb-2">
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Área Exclusiva SuperAdmin • {VERSION}</span>
+            <span>{isSuperadmin ? 'Área Exclusiva SuperAdmin' : 'Painel de Perfil & Segurança'} • {VERSION}</span>
           </div>
-          <h1 className="text-2xl font-black text-white tracking-tight">Meu Perfil & Segurança</h1>
+          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">Meu Perfil & Segurança</h1>
           <p className="text-xs text-slate-400 mt-1">
-            Gerenciamento da conta master do operador da plataforma EasyCell
+            {isSuperadmin ? 'Gerenciamento da conta master do operador da plataforma EasyCell' : 'Gerencie seus dados de acesso, contato e credenciais'}
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono">
+          <div className="flex items-center gap-2 px-3.5 py-1.5 sm:py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="text-slate-300">Sessão Segura Scrypt</span>
           </div>
@@ -159,37 +169,41 @@ export default function PerfilPage() {
       </div>
 
       {/* Card de Resumo do Usuário */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-cyan-950/40 border border-cyan-500/20 rounded-3xl p-6 relative overflow-hidden shadow-xl">
+      <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-cyan-950/40 border border-cyan-500/20 rounded-3xl p-4 sm:p-6 relative overflow-hidden shadow-xl">
         <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/10 rounded-bl-full pointer-events-none blur-2xl" />
-        <div className="flex flex-col sm:flex-row items-center gap-6 relative z-10">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-black shadow-lg shadow-cyan-500/30 border border-cyan-300/40 font-mono shrink-0">
-            VO
+        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 relative z-10">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center text-white text-xl sm:text-2xl font-black shadow-lg shadow-cyan-500/30 border border-cyan-300/40 font-mono shrink-0">
+            {iniciais}
           </div>
 
-          <div className="text-center sm:text-left flex-1">
+          <div className="text-center sm:text-left flex-1 min-w-0 w-full">
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
-              <h2 className="text-xl font-bold text-white">{nome}</h2>
-              <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase font-mono tracking-wider flex items-center gap-1">
+              <h2 className="text-lg sm:text-xl font-bold text-white truncate">{nome || user?.nome || 'Operador'}</h2>
+              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase font-mono tracking-wider flex items-center gap-1 ${
+                isSuperadmin 
+                  ? 'bg-amber-500/15 border border-amber-500/30 text-amber-400' 
+                  : 'bg-cyan-500/15 border border-cyan-500/30 text-cyan-400'
+              }`}>
                 <Sparkles className="w-3 h-3" />
-                Superadmin
+                {isSuperadmin ? 'Superadmin Master' : (user?.cargo === 'admin' ? 'Administrador Lojista' : (user?.cargo || 'Atendente'))}
               </span>
             </div>
-            <p className="text-xs text-slate-400 font-mono">{email}</p>
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 mt-3 text-xs text-slate-400">
-              <span className="flex items-center gap-1.5">
-                <Building2 className="w-3.5 h-3.5 text-cyan-400" />
-                Tenant Master: <strong className="text-slate-200">Matriz Lab (ten_easycell_matriz)</strong>
+            <p className="text-xs text-slate-400 font-mono truncate">{email || user?.email}</p>
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 sm:gap-4 mt-3 text-xs text-slate-400">
+              <span className="flex items-center gap-1.5 truncate">
+                <Building2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                Empresa: <strong className="text-slate-200 truncate">{user?.tenantId || 'Matriz Lab'}</strong>
               </span>
               <span className="flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-emerald-400" />
-                Acesso Global: <strong className="text-emerald-400">Irrestrito (Super Admin)</strong>
+                <Lock className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                Nível: <strong className="text-emerald-400 capitalize">{user?.cargo || 'Atendente'}</strong>
               </span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
         {/* Formulário de Dados Pessoais */}
         <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
           <div>

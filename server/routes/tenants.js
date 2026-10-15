@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { db } from '../../src/db/index.js';
 import { tenants, lojas } from '../../src/db/schema/tenants.js';
 import { eq, and, desc, count } from 'drizzle-orm';
@@ -5,40 +7,91 @@ import { authenticateUser, requireRole } from '../middleware/auth.js';
 import { extractTenantContext } from '../middleware/tenant.js';
 import { createOnboardingInvite } from './onboarding.js';
 
+const TENANTS_VAULT_FILE = path.join(process.cwd(), 'storage', 'tenants_vault.json');
+let memoryTenantsVault = [];
+
+export function carregarTenantsVault() {
+  try {
+    if (fs.existsSync(TENANTS_VAULT_FILE)) {
+      const data = JSON.parse(fs.readFileSync(TENANTS_VAULT_FILE, 'utf8'));
+      if (Array.isArray(data)) memoryTenantsVault = data;
+    }
+  } catch (e) {
+    console.warn('Aviso: Falha ao carregar tenants_vault.json');
+  }
+  return memoryTenantsVault;
+}
+
+export function salvarTenantVault(tenantObj) {
+  try {
+    carregarTenantsVault();
+    const idx = memoryTenantsVault.findIndex(t => t.id === tenantObj.id || (t.slug && t.slug === tenantObj.slug));
+    if (idx >= 0) {
+      memoryTenantsVault[idx] = { ...memoryTenantsVault[idx], ...tenantObj, atualizadoEm: new Date().toISOString() };
+    } else {
+      memoryTenantsVault.unshift({ ...tenantObj, criadoEm: tenantObj.criadoEm || new Date().toISOString(), atualizadoEm: new Date().toISOString() });
+    }
+    const dir = path.dirname(TENANTS_VAULT_FILE);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(TENANTS_VAULT_FILE, JSON.stringify(memoryTenantsVault, null, 2), 'utf8');
+  } catch (e) {
+    console.warn('Aviso: Falha ao gravar tenants_vault.json');
+  }
+}
+
+carregarTenantsVault();
+
 export async function tenantsRoutes(fastify, options) {
   // ==========================================
   // SUPER ADMIN SAAS (PLATAFORMA EASYCELL)
   // ==========================================
 
-  // 1. Listar todos os tenants (Super Admin)
+  // 1. Listar todos os tenants (Super Admin com resiliência de cofre)
   fastify.get(
     '/api/v1/saas/tenants',
     { preHandler: [authenticateUser, requireRole(['superadmin', 'admin'])] },
     async (request, reply) => {
+      carregarTenantsVault();
+      let dbList = [];
       try {
-        const lista = await db.select().from(tenants).orderBy(desc(tenants.criadoEm));
-        return reply.send({ total: lista.length, tenants: lista });
+        dbList = await db.select().from(tenants).orderBy(desc(tenants.criadoEm));
+        // Sincroniza do banco para o cofre
+        dbList.forEach(t => salvarTenantVault(t));
       } catch (err) {
-        request.log.warn({ err }, 'Aviso: Falha ao consultar tenants no PostgreSQL');
-        return reply.send({
-          total: 1,
-          tenants: [
-            {
-              id: 'ten_easycell_matriz',
-              nomeEmpresa: 'EasyCell Smartphone Lab (Matriz)',
-              slug: 'easycell-matriz',
-              cnpj: '12.345.678/0001-90',
-              emailResponsavel: 'contato@easycell.com.br',
-              telefone: '(11) 99876-5432',
-              plano: 'pro',
-              statusAssinatura: 'ativa',
-              valorMensalidade: 19700,
-              limiteLojas: 3,
-              criadoEm: new Date().toISOString()
-            }
-          ]
-        });
+        request.log.warn({ err }, 'Aviso: Falha ao consultar tenants no PostgreSQL, utilizando cofre persistente');
       }
+
+      // Mescla cofre e banco sem duplicatas
+      const combined = [...dbList];
+      const seenIds = new Set(dbList.map(t => t.id));
+
+      memoryTenantsVault.forEach(vaultTenant => {
+        if (!seenIds.has(vaultTenant.id)) {
+          combined.push(vaultTenant);
+          seenIds.add(vaultTenant.id);
+        }
+      });
+
+      // Garante sempre pelo menos o tenant padrão
+      if (combined.length === 0) {
+        const defaultTenant = {
+          id: 'ten_easycell_matriz',
+          nomeEmpresa: 'EasyCell Smartphone Lab (Matriz)',
+          slug: 'easycell-matriz',
+          cnpj: '12.345.678/0001-90',
+          emailResponsavel: 'omd.vandersonoliveira@gmail.com',
+          telefone: '(21) 99975-7549',
+          plano: 'enterprise',
+          statusAssinatura: 'ativa',
+          valorMensalidade: 19700,
+          limiteLojas: 3,
+          criadoEm: new Date().toISOString()
+        };
+        combined.push(defaultTenant);
+        salvarTenantVault(defaultTenant);
+      }
+
+      return reply.send({ total: combined.length, tenants: combined });
     }
   );
 
@@ -81,6 +134,9 @@ export async function tenantsRoutes(fastify, options) {
         atualizadoEm: new Date(),
       };
 
+      // Salva no cofre de tenants persistente
+      salvarTenantVault(novoTenant);
+
       try {
         await db.insert(tenants).values(novoTenant);
 
@@ -97,7 +153,7 @@ export async function tenantsRoutes(fastify, options) {
           corIdentificacao: '#06b6d4',
           criadoEm: new Date(),
           atualizadoEm: new Date(),
-        });
+        }).catch(() => {});
 
         const invite = createOnboardingInvite(novoTenant);
 
@@ -109,7 +165,7 @@ export async function tenantsRoutes(fastify, options) {
           invite
         });
       } catch (err) {
-        request.log.error(err, 'Erro ao criar tenant no PostgreSQL');
+        request.log.warn({ err }, 'Aviso: Banco offline na criação do tenant, operando com cofre');
         const invite = createOnboardingInvite(novoTenant);
         return reply.status(201).send({
           sucesso: true,

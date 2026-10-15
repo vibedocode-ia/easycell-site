@@ -260,7 +260,7 @@ export default function TourGuiado() {
     return (
       <div 
         onClick={() => setMinimizado(false)}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl bg-slate-900/95 border border-cyan-500/60 shadow-2xl shadow-cyan-950/80 hover:border-cyan-400 cursor-pointer transition-all active:scale-95 group animate-in fade-in"
+        className="fixed bottom-22 right-3 sm:bottom-6 sm:right-6 z-50 flex items-center gap-3 px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-2xl bg-slate-900/95 border border-cyan-500/60 shadow-2xl shadow-cyan-950/80 hover:border-cyan-400 cursor-pointer transition-all active:scale-95 group animate-in fade-in"
       >
         <div className="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
           <Compass className="w-4 h-4 group-hover:rotate-45 transition-transform" />
@@ -282,7 +282,7 @@ export default function TourGuiado() {
       {/* Realce Dinâmico sutil ao redor do item de menu correspondente na barra lateral */}
       {targetRect && (
         <div
-          className="fixed pointer-events-none z-40 transition-all duration-300 ring-2 ring-cyan-400 rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.4)] animate-pulse"
+          className="fixed pointer-events-none z-40 transition-all duration-300 ring-2 ring-cyan-400 rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.4)] animate-pulse hidden md:block"
           style={{
             top: targetRect.top - 2,
             left: targetRect.left - 2,
@@ -296,9 +296,9 @@ export default function TourGuiado() {
         </div>
       )}
 
-      {/* Card Flutuante Docked no Canto Inferior Direito: Deixa o sistema 100% visível e interativo! */}
+      {/* Card Flutuante: Docked no Canto Inferior Direito no Desktop e acima da Bottom Nav no Mobile */}
       <div
-        className="fixed bottom-6 right-6 z-50 w-full max-w-[390px] bg-slate-900/95 border border-cyan-500/50 rounded-3xl p-5 shadow-2xl shadow-cyan-950/80 backdrop-blur-md transition-all duration-300 animate-in fade-in slide-in-from-bottom-5"
+        className="fixed bottom-22 left-3 right-3 sm:left-auto sm:right-6 sm:bottom-6 z-50 w-auto sm:w-full sm:max-w-[390px] bg-slate-900/95 border border-cyan-500/50 rounded-3xl p-4 sm:p-5 shadow-2xl shadow-cyan-950/80 backdrop-blur-md transition-all duration-300 animate-in fade-in slide-in-from-bottom-5"
       >
         {/* Cabeçalho do Card */}
         <div className="flex items-start justify-between gap-3 mb-2.5">

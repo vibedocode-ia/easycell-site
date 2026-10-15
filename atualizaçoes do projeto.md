@@ -1,3 +1,8 @@
+### V1.03.05 (2026-10-14) - Otimização mobile com barra de navegação nativa e persistência resiliente de usuários
+- **Release:** Otimização mobile com barra de navegação nativa e persistência resiliente de usuários
+
+---
+
 ### V1.03.04 (2026-10-14) - Tour interativo não-intrusivo com navegação em tempo real e visão desobstruída
 - **Release:** Tour interativo não-intrusivo com navegação em tempo real e visão desobstruída
 

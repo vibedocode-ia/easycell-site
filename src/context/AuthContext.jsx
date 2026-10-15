@@ -43,8 +43,8 @@ export function AuthProvider({ children }) {
           const data = await res.json();
           setUser(data.user);
           localStorage.setItem('easycell_user', JSON.stringify(data.user));
-        } else {
-          // Token expirado ou inválido
+        } else if (res.status === 401 || res.status === 403) {
+          // Token estritamente expirado ou inválido
           logout();
         }
       } catch (err) {
