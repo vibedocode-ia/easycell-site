@@ -1,3 +1,8 @@
+### V1.03.06 (2026-10-14) - Otimização mobile total do Super Admin SaaS e Landing Page
+- **Release:** Otimização mobile total do Super Admin SaaS e Landing Page
+
+---
+
 ### V1.03.05 (2026-10-14) - Otimização mobile com barra de navegação nativa e persistência resiliente de usuários
 - **Release:** Otimização mobile com barra de navegação nativa e persistência resiliente de usuários
 

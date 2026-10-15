@@ -135,6 +135,10 @@ export default function AdminSaasPage() {
       }
     };
     fetchTenants();
+
+    const handleOpenNovo = () => setModalNovoTenant(true);
+    window.addEventListener('easycell_open_novo_tenant', handleOpenNovo);
+    return () => window.removeEventListener('easycell_open_novo_tenant', handleOpenNovo);
   }, []);
 
   // Alternar suspensão de assinatura
@@ -420,7 +424,7 @@ export default function AdminSaasPage() {
             </span>
             <span className="text-xs text-slate-500 font-mono">v{VERSION}</span>
           </div>
-          <h1 className="text-3xl font-black text-white tracking-tight flex items-center gap-3">
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-3">
             Gestão da Plataforma B2B
           </h1>
           <p className="text-xs text-slate-400">
@@ -430,7 +434,7 @@ export default function AdminSaasPage() {
 
         <button
           onClick={() => setModalNovoTenant(true)}
-          className="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs transition-all shadow-lg shadow-cyan-500/20 cursor-pointer active:scale-95"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs transition-all shadow-lg shadow-cyan-500/20 cursor-pointer active:scale-95"
         >
           <Plus className="w-4 h-4" />
           <span>Nova Assistência (Tenant)</span>
