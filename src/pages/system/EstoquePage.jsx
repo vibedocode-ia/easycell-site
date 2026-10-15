@@ -48,6 +48,10 @@ export default function EstoquePage() {
     return true;
   });
 
+  const totalPecas = stock.filter(i => i.tipo === 'peca_reposicao').length;
+  const totalServicos = stock.filter(i => i.tipo === 'servico').length;
+  const totalAparelhos = stock.filter(i => i.tipo === 'aparelho_usado' || i.tipo === 'vitrine_novo').length;
+
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-12">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -64,6 +68,60 @@ export default function EstoquePage() {
         >
           <Plus className="w-4 h-4" />
           <span>Cadastrar Item</span>
+        </button>
+      </div>
+
+      {/* Cards Rápidos de Navegação & Filtro - 100% Clicáveis */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+        <button
+          type="button"
+          onClick={() => setActiveTab('peca_reposicao')}
+          className={`glass-panel p-4 rounded-2xl border text-left transition-all cursor-pointer group shadow-lg select-none active:scale-95 ${
+            activeTab === 'peca_reposicao'
+              ? 'border-cyan-400 ring-2 ring-cyan-400/30 bg-cyan-950/20 scale-[1.01]'
+              : 'border-slate-800 hover:border-cyan-500/50'
+          }`}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-slate-300 group-hover:text-cyan-300">Peças de Reposição</span>
+            <Package className="w-4 h-4 text-cyan-400" />
+          </div>
+          <div className="text-2xl font-black text-white font-mono">{totalPecas}</div>
+          <span className="text-[10px] text-slate-400 mt-1 block">Telas, baterias e conectores</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('servico')}
+          className={`glass-panel p-4 rounded-2xl border text-left transition-all cursor-pointer group shadow-lg select-none active:scale-95 ${
+            activeTab === 'servico'
+              ? 'border-blue-400 ring-2 ring-blue-400/30 bg-blue-950/20 scale-[1.01]'
+              : 'border-slate-800 hover:border-blue-500/50'
+          }`}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-slate-300 group-hover:text-blue-300">Tabela de Serviços</span>
+            <Tag className="w-4 h-4 text-blue-400" />
+          </div>
+          <div className="text-2xl font-black text-blue-400 font-mono">{totalServicos}</div>
+          <span className="text-[10px] text-slate-400 mt-1 block">Mão de obra tabelada</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('aparelho_usado')}
+          className={`glass-panel p-4 rounded-2xl border text-left transition-all cursor-pointer group shadow-lg select-none active:scale-95 ${
+            activeTab === 'aparelho_usado'
+              ? 'border-emerald-400 ring-2 ring-emerald-400/30 bg-emerald-950/20 scale-[1.01]'
+              : 'border-slate-800 hover:border-emerald-500/50'
+          }`}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-bold text-slate-300 group-hover:text-emerald-300">Aparelhos / Seminovos</span>
+            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          </div>
+          <div className="text-2xl font-black text-emerald-400 font-mono">{totalAparelhos}</div>
+          <span className="text-[10px] text-slate-400 mt-1 block">Rastreados por IMEI</span>
         </button>
       </div>
 

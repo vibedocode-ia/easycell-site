@@ -51,7 +51,7 @@ export default function SaasAdminLayout() {
   // Componente interno para renderizar o menu (usado tanto na sidebar desktop quanto no drawer mobile)
   const renderSidebarContent = (isMobile = false) => (
     <div className="flex flex-col justify-between h-full min-h-0">
-      <div className="overflow-y-auto flex-1 py-1">
+      <div className="overflow-y-auto no-scrollbar flex-1 py-1">
         {/* Brand Header */}
         <div className="h-16 md:h-20 flex items-center justify-between px-5 md:px-6 border-b border-slate-800/80">
           <NavLink 

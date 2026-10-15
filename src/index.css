@@ -9,6 +9,42 @@
   body {
     @apply bg-[#030611] text-slate-100 font-sans antialiased selection:bg-cyan-500 selection:text-black overflow-x-hidden;
   }
+
+  /* Custom Scrollbar Global no tema Cyberpunk / Dark Glass (elimina a barra branca nativa) */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #030611;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #06b6d4;
+    box-shadow: 0 0 12px rgba(6, 182, 212, 0.6);
+  }
+
+  /* Suporte Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #1e293b #030611;
+  }
+}
+
+/* Utilitários de Scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 @keyframes floatSlow {

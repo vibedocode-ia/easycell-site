@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { NavLink } from 'react-router-dom';
 import { 
   Building2, 
   Store, 
@@ -23,7 +24,8 @@ import {
   Check,
   RefreshCw,
   MessageSquare,
-  Share2
+  Share2,
+  ArrowUpRight
 } from 'lucide-react';
 import { VERSION } from '../../lib/version';
 
@@ -441,75 +443,96 @@ export default function AdminSaasPage() {
         </button>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* MRR */}
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 relative overflow-hidden group">
+      {/* KPI Cards - 100% Clicáveis e Interativos */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+        {/* Card 1: MRR -> Leva ao Gerenciador Financeiro */}
+        <NavLink
+          to="/admin/saas/financeiro"
+          className="bg-slate-900/80 border border-slate-800 hover:border-emerald-400/80 rounded-2xl p-4 sm:p-5 relative overflow-hidden group transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-lg hover:bg-slate-900 select-none block"
+          title="Ver Gerenciador Financeiro e Dunning"
+        >
           <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-bl-full pointer-events-none transition-all group-hover:scale-110" />
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold text-slate-400">MRR (Recorrência)</span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <span className="text-[11px] sm:text-xs font-semibold text-slate-400 group-hover:text-emerald-300 transition-colors">MRR (Recorrência)</span>
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center group-hover:bg-emerald-500/20 group-hover:scale-110 transition-all shrink-0">
               <DollarSign className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-white font-mono">
+          <div className="text-xl sm:text-2xl font-black text-white font-mono group-hover:text-emerald-400 transition-colors">
             R$ {mrrTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </div>
-          <div className="text-[11px] text-emerald-400 flex items-center gap-1 mt-1 font-semibold">
-            <TrendingUp className="w-3 h-3" /> Faturamento ativo consolidado
+          <div className="text-[10px] sm:text-[11px] text-emerald-400 flex items-center justify-between mt-1 font-semibold">
+            <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" /> Faturamento ativo</span>
+            <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-emerald-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
           </div>
-        </div>
+        </NavLink>
 
-        {/* Empresas Ativas */}
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 relative overflow-hidden group">
+        {/* Card 2: Empresas Ativas -> Rola para tabela de Tenants */}
+        <button
+          type="button"
+          onClick={() => document.getElementById('tabela-tenants')?.scrollIntoView({ behavior: 'smooth' })}
+          className="bg-slate-900/80 border border-slate-800 hover:border-cyan-400/80 rounded-2xl p-4 sm:p-5 relative overflow-hidden group transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-lg hover:bg-slate-900 select-none text-left w-full"
+          title="Rolar para lista de empresas cadastradas"
+        >
           <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/10 rounded-bl-full pointer-events-none transition-all group-hover:scale-110" />
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold text-slate-400">Empresas Assinantes</span>
-            <div className="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <span className="text-[11px] sm:text-xs font-semibold text-slate-400 group-hover:text-cyan-300 transition-colors">Empresas Assinantes</span>
+            <div className="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center group-hover:bg-cyan-500/20 group-hover:scale-110 transition-all shrink-0">
               <Building2 className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-white font-mono">
+          <div className="text-xl sm:text-2xl font-black text-white font-mono group-hover:text-cyan-400 transition-colors">
             {totalAssinantesAtivos} <span className="text-sm text-slate-500 font-sans font-normal">/ {tenantsList.length}</span>
           </div>
-          <div className="text-[11px] text-cyan-400 mt-1 font-semibold">
-            {tenantsList.length - totalAssinantesAtivos} suspensas ou pendentes
+          <div className="text-[10px] sm:text-[11px] text-cyan-400 flex items-center justify-between mt-1 font-semibold">
+            <span>{tenantsList.length - totalAssinantesAtivos} suspensas</span>
+            <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
           </div>
-        </div>
+        </button>
 
-        {/* Total Lojas Físicas */}
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 relative overflow-hidden group">
+        {/* Card 3: Total Lojas Físicas -> Leva para Gestão de Filiais */}
+        <NavLink
+          to="/system/lojas"
+          className="bg-slate-900/80 border border-slate-800 hover:border-blue-400/80 rounded-2xl p-4 sm:p-5 relative overflow-hidden group transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-lg hover:bg-slate-900 select-none block"
+          title="Ver Gestão de Filiais e Lojas"
+        >
           <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-bl-full pointer-events-none transition-all group-hover:scale-110" />
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold text-slate-400">Lojas & Filiais Físicas</span>
-            <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <span className="text-[11px] sm:text-xs font-semibold text-slate-400 group-hover:text-blue-300 transition-colors">Lojas & Filiais</span>
+            <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center group-hover:bg-blue-500/20 group-hover:scale-110 transition-all shrink-0">
               <Store className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-white font-mono">
+          <div className="text-xl sm:text-2xl font-black text-white font-mono group-hover:text-blue-400 transition-colors">
             {totalLojasGerais}
           </div>
-          <div className="text-[11px] text-blue-400 mt-1 font-semibold">
-            Pontos de atendimento no Brasil
+          <div className="text-[10px] sm:text-[11px] text-blue-400 flex items-center justify-between mt-1 font-semibold">
+            <span>Filiais ativas</span>
+            <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-blue-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
           </div>
-        </div>
+        </NavLink>
 
-        {/* Total O.S. Processadas */}
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 relative overflow-hidden group">
+        {/* Card 4: Total O.S. Processadas -> Leva para Quadro de O.S. */}
+        <NavLink
+          to="/system/os"
+          className="bg-slate-900/80 border border-slate-800 hover:border-cyan-400/80 rounded-2xl p-4 sm:p-5 relative overflow-hidden group transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-lg hover:bg-slate-900 select-none block"
+          title="Ver Ordens de Serviço Globais no Kanban"
+        >
           <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/10 rounded-bl-full pointer-events-none transition-all group-hover:scale-110" />
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold text-slate-400">Volume de O.S. (Mês)</span>
-            <div className="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <span className="text-[11px] sm:text-xs font-semibold text-slate-400 group-hover:text-cyan-300 transition-colors">Volume de O.S.</span>
+            <div className="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center group-hover:bg-cyan-500/20 group-hover:scale-110 transition-all shrink-0">
               <Users className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-white font-mono">
+          <div className="text-xl sm:text-2xl font-black text-white font-mono group-hover:text-cyan-400 transition-colors">
             {totalOsGerais.toLocaleString('pt-BR')}
           </div>
-          <div className="text-[11px] text-slate-400 mt-1">
-            Média de {totalAssinantesAtivos > 0 ? Math.round(totalOsGerais / totalAssinantesAtivos) : 0} O.S. por assistência
+          <div className="text-[10px] sm:text-[11px] text-slate-400 flex items-center justify-between mt-1">
+            <span>Mês atual</span>
+            <ArrowUpRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
           </div>
-        </div>
+        </NavLink>
       </div>
 
       {/* Filtros e Busca */}
@@ -541,7 +564,7 @@ export default function AdminSaasPage() {
       </div>
 
       {/* Tabela de Inquilinos */}
-      <div className="bg-slate-900/80 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+      <div id="tabela-tenants" className="bg-slate-900/80 border border-slate-800 rounded-2xl overflow-hidden shadow-xl scroll-mt-24">
         <div className="p-5 border-b border-slate-800 flex items-center justify-between">
           <h2 className="text-sm font-bold text-white flex items-center gap-2">
             <Building2 className="w-4 h-4 text-cyan-400" />

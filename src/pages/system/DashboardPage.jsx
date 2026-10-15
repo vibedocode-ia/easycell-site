@@ -140,62 +140,106 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Grid de StatCards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="glass-panel p-5 rounded-2xl border border-slate-800 hover:border-cyan-500/40 transition-all">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold text-slate-400">Total de O.S.</span>
-            <div className="w-9 h-9 rounded-xl bg-cyan-950 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+      {/* Grid de StatCards - 100% Clicáveis e Vivos (Nenhum card é apenas informativo) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+        {/* Card 1: Total de O.S. -> Leva para Ordens & Kanban */}
+        <NavLink
+          to="/system/os"
+          className="glass-panel p-4 sm:p-5 rounded-2xl border border-slate-800 hover:border-cyan-400/80 hover:bg-slate-900/60 transition-all cursor-pointer group shadow-lg shadow-cyan-950/10 hover:scale-[1.02] active:scale-95 block select-none relative overflow-hidden"
+          title="Ver todas as Ordens de Serviço no Kanban"
+        >
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <span className="text-[11px] sm:text-xs font-semibold text-slate-400 group-hover:text-cyan-300 transition-colors">
+              Total de O.S.
+            </span>
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-cyan-950 border border-cyan-500/30 flex items-center justify-center text-cyan-400 group-hover:scale-110 group-hover:bg-cyan-500/20 transition-all shrink-0">
               <ClipboardList className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-3xl font-black text-white font-mono">{totalOsHoje}</div>
-          <div className="text-[11px] text-slate-500 mt-2">
-            {totalOsHoje === 0 ? 'Nenhum aparelho ativo' : 'Aparelhos registrados'}
+          <div className="text-2xl sm:text-3xl font-black text-white font-mono group-hover:text-cyan-400 transition-colors">
+            {totalOsHoje}
           </div>
-        </div>
+          <div className="text-[10px] sm:text-[11px] text-slate-500 mt-1.5 flex items-center justify-between">
+            <span>{totalOsHoje === 0 ? 'Nenhum ativo' : 'Aparelhos ativos'}</span>
+            <ArrowUpRight className="w-3.5 h-3.5 text-slate-600 group-hover:text-cyan-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+          </div>
+        </NavLink>
 
-        <div className="glass-panel p-5 rounded-2xl border border-slate-800 hover:border-blue-500/40 transition-all">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold text-slate-400">Na Bancada / Reparo</span>
-            <div className="w-9 h-9 rounded-xl bg-blue-950 border border-blue-500/30 flex items-center justify-center text-blue-400">
+        {/* Card 2: Na Bancada / Reparo -> Leva para Bancada Operacional */}
+        <NavLink
+          to="/system/os"
+          className="glass-panel p-4 sm:p-5 rounded-2xl border border-slate-800 hover:border-blue-400/80 hover:bg-slate-900/60 transition-all cursor-pointer group shadow-lg shadow-blue-950/10 hover:scale-[1.02] active:scale-95 block select-none relative overflow-hidden"
+          title="Ver ordens atualmente na bancada técnica"
+        >
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <span className="text-[11px] sm:text-xs font-semibold text-slate-400 group-hover:text-blue-300 transition-colors">
+              Na Bancada
+            </span>
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-blue-950 border border-blue-500/30 flex items-center justify-center text-blue-400 group-hover:scale-110 group-hover:bg-blue-500/20 transition-all shrink-0">
               <Wrench className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-3xl font-black text-blue-400 font-mono">{emReparo}</div>
-          <div className="text-[11px] text-slate-500 mt-2">Técnicos executando</div>
-        </div>
+          <div className="text-2xl sm:text-3xl font-black text-blue-400 font-mono">
+            {emReparo}
+          </div>
+          <div className="text-[10px] sm:text-[11px] text-slate-500 mt-1.5 flex items-center justify-between">
+            <span>Em conserto</span>
+            <ArrowUpRight className="w-3.5 h-3.5 text-slate-600 group-hover:text-blue-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+          </div>
+        </NavLink>
 
-        <div className="glass-panel p-5 rounded-2xl border border-slate-800 hover:border-emerald-500/40 transition-all">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold text-slate-400">Prontos p/ Retirada</span>
-            <div className="w-9 h-9 rounded-xl bg-emerald-950 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+        {/* Card 3: Prontos p/ Retirada -> Leva para aparelhos prontos */}
+        <NavLink
+          to="/system/os"
+          className="glass-panel p-4 sm:p-5 rounded-2xl border border-slate-800 hover:border-emerald-400/80 hover:bg-slate-900/60 transition-all cursor-pointer group shadow-lg shadow-emerald-950/10 hover:scale-[1.02] active:scale-95 block select-none relative overflow-hidden"
+          title="Ver aparelhos prontos para retirada e notificar cliente"
+        >
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <span className="text-[11px] sm:text-xs font-semibold text-slate-400 group-hover:text-emerald-300 transition-colors">
+              Prontos
+            </span>
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-950 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all shrink-0">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-3xl font-black text-emerald-400 font-mono">{prontos}</div>
-          <div className="text-[11px] text-slate-500 mt-2">Aguardando cliente</div>
-        </div>
+          <div className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">
+            {prontos}
+          </div>
+          <div className="text-[10px] sm:text-[11px] text-slate-500 mt-1.5 flex items-center justify-between">
+            <span>Aguardando retirada</span>
+            <ArrowUpRight className="w-3.5 h-3.5 text-slate-600 group-hover:text-emerald-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+          </div>
+        </NavLink>
 
-        <div className="glass-panel p-5 rounded-2xl border border-slate-800 hover:border-cyan-500/40 transition-all">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold text-slate-400">Faturamento Caixa</span>
-            <div className="w-9 h-9 rounded-xl bg-cyan-950 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+        {/* Card 4: Faturamento Caixa -> Leva para Frente de Caixa & Fechamento */}
+        <NavLink
+          to="/system/caixa"
+          className="glass-panel p-4 sm:p-5 rounded-2xl border border-slate-800 hover:border-cyan-400/80 hover:bg-slate-900/60 transition-all cursor-pointer group shadow-lg shadow-cyan-950/10 hover:scale-[1.02] active:scale-95 block select-none relative overflow-hidden"
+          title="Ver Frente de Caixa e Fechamento Diário"
+        >
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <span className="text-[11px] sm:text-xs font-semibold text-slate-400 group-hover:text-cyan-300 transition-colors">
+              Caixa Hoje
+            </span>
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-cyan-950 border border-cyan-500/30 flex items-center justify-center text-cyan-400 group-hover:scale-110 group-hover:bg-cyan-500/20 transition-all shrink-0">
               <DollarSign className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-3xl font-black text-white font-mono">
+          <div className="text-xl sm:text-3xl font-black text-white font-mono truncate group-hover:text-cyan-300 transition-colors">
             R$ {(totalFaturamento / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </div>
-          <div className="text-[11px] text-slate-500 mt-2">Recebimentos acumulados</div>
-        </div>
+          <div className="text-[10px] sm:text-[11px] text-slate-500 mt-1.5 flex items-center justify-between">
+            <span>Recebido hoje</span>
+            <ArrowUpRight className="w-3.5 h-3.5 text-slate-600 group-hover:text-cyan-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+          </div>
+        </NavLink>
       </div>
 
-      {/* Tabela de Ordens Recentes */}
-      <div className="glass-panel rounded-3xl border border-slate-800/80 p-6 space-y-4">
+      {/* Seção de Ordens de Serviço: Visão Compacta no Mobile (sem rolagem infinita) + Tabela Completa no Desktop */}
+      <div className="glass-panel rounded-3xl border border-slate-800/80 p-4 sm:p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
+            <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
               Ordens de Serviço em Andamento
               {isDemoActive && (
                 <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30">
@@ -203,29 +247,29 @@ export default function DashboardPage() {
                 </span>
               )}
             </h3>
-            <p className="text-xs text-slate-400">Acompanhamento em tempo real de aparelhos e laudos de entrada</p>
+            <p className="text-xs text-slate-400 hidden sm:block">Acompanhamento em tempo real de aparelhos e laudos de entrada</p>
           </div>
           {orders.length > 0 && (
-            <NavLink to="/system/os" className="text-xs text-cyan-400 font-bold hover:underline flex items-center gap-1">
-              Ver todas no Kanban <ArrowUpRight className="w-3.5 h-3.5" />
+            <NavLink to="/system/os" className="text-xs text-cyan-400 font-bold hover:underline flex items-center gap-1 active:scale-95">
+              <span>Ver todas no Kanban</span> <ArrowUpRight className="w-3.5 h-3.5" />
             </NavLink>
           )}
         </div>
 
         {orders.length === 0 ? (
           /* Empty State Limpo */
-          <div className="py-12 px-4 text-center space-y-3 rounded-2xl bg-slate-950/40 border border-dashed border-slate-800">
+          <div className="py-10 px-4 text-center space-y-3 rounded-2xl bg-slate-950/40 border border-dashed border-slate-800">
             <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center mx-auto">
               <ClipboardList className="w-6 h-6" />
             </div>
             <h4 className="text-sm font-bold text-white">Nenhuma Ordem de Serviço cadastrada</h4>
             <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
-              Seu painel está limpo e pronto para receber aparelhos no balcão. Abra sua primeira O.S. blindada em 90 segundos!
+              Seu painel está pronto para receber aparelhos no balcão. Abra sua primeira O.S. blindada em 90 segundos!
             </p>
-            <div className="pt-2 flex items-center justify-center gap-3">
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
               <NavLink
                 to="/system/os/nova"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 active:scale-95 cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 active:scale-95 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Abrir Primeira O.S. (90s)</span>
@@ -243,69 +287,112 @@ export default function DashboardPage() {
             </div>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
-                  <th className="py-3 px-4">O.S.</th>
-                  <th className="py-3 px-4">Cliente</th>
-                  <th className="py-3 px-4">Smartphone</th>
-                  <th className="py-3 px-4">Senha Registrada</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4">Valor Total</th>
-                  <th className="py-3 px-4 text-right">Ação</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60 font-medium">
-                {orders.map((ordem) => (
-                  <tr key={ordem.id} className="hover:bg-slate-900/40 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-bold text-cyan-400">
-                      <div className="flex items-center gap-1.5">
-                        <span>#{ordem.numeroOs}</span>
-                        {ordem.isDemo && (
-                          <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                            DEMO
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 text-white font-bold">
-                      {ordem.clienteNome}
-                      <div className="text-[10px] text-slate-500 font-normal">{ordem.clienteWhatsapp}</div>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className="text-slate-200">{ordem.aparelhoMarca} {ordem.aparelhoModelo}</span>
-                      <div className="text-[10px] text-slate-500 font-mono">IMEI: {ordem.aparelhoImei || 'Não inf.'}</div>
-                    </td>
-                    <td className="py-3.5 px-4 font-mono">
-                      {ordem.senhaTipo === 'padrao_pontos' ? (
-                        <span className="px-2 py-0.5 rounded bg-cyan-950/80 text-cyan-300 border border-cyan-500/30 text-[10px]">
-                          Padrão 3x3 Salvo
-                        </span>
-                      ) : (
-                        <span className="text-slate-400 text-[10px]">PIN: {ordem.senhaValor}</span>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4">
+          <>
+            {/* 1. VISÃO MOBILE OTIMIZADA: Tudo cabe na tela sem rolagem vertical pesada + Botão 'Ver Mais' */}
+            <div className="block md:hidden space-y-3">
+              {/* Exibe apenas as 2 ordens mais recentes de forma compacta e direta */}
+              {orders.slice(0, 2).map((ordem) => (
+                <NavLink
+                  key={ordem.id}
+                  to={`/system/os/${ordem.id}`}
+                  className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 hover:border-cyan-500/50 flex items-center justify-between gap-3 active:scale-98 transition-all shadow-md block"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-mono text-xs font-bold text-cyan-400">#{ordem.numeroOs}</span>
                       {getStatusBadge(ordem.status)}
-                    </td>
-                    <td className="py-3.5 px-4 font-mono text-slate-200 font-bold">
+                    </div>
+                    <div className="text-xs font-bold text-white truncate">{ordem.clienteNome}</div>
+                    <div className="text-[11px] text-slate-400 truncate mt-0.5">
+                      {ordem.aparelhoMarca} {ordem.aparelhoModelo}
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <div className="font-mono text-xs font-black text-cyan-300">
                       R$ {((ordem.valorTotal || 0) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <NavLink
-                        to={`/system/os/${ordem.id}`}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-cyan-500 hover:text-black text-cyan-300 font-bold text-[11px] transition-all"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>Detalhes</span>
-                      </NavLink>
-                    </td>
+                    </div>
+                    <div className="text-[10px] text-cyan-400/80 flex items-center justify-end gap-0.5 mt-1">
+                      <span>Ver</span> <ArrowUpRight className="w-3 h-3" />
+                    </div>
+                  </div>
+                </NavLink>
+              ))}
+
+              {/* Botão Ver Mais: Direciona para tela exclusiva com visão total das ordens */}
+              <NavLink
+                to="/system/os"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-gradient-to-r from-slate-900 via-slate-900 to-cyan-950/60 border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 font-bold text-xs shadow-md active:scale-95 transition-all text-center"
+              >
+                <span>Ver Mais no Kanban ({orders.length} ordens)</span>
+                <ArrowUpRight className="w-4 h-4 text-cyan-400" />
+              </NavLink>
+            </div>
+
+            {/* 2. VISÃO DESKTOP: Tabela Completa para Telas Médias e Grandes */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
+                    <th className="py-3 px-4">O.S.</th>
+                    <th className="py-3 px-4">Cliente</th>
+                    <th className="py-3 px-4">Smartphone</th>
+                    <th className="py-3 px-4">Senha Registrada</th>
+                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 px-4">Valor Total</th>
+                    <th className="py-3 px-4 text-right">Ação</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60 font-medium">
+                  {orders.map((ordem) => (
+                    <tr key={ordem.id} className="hover:bg-slate-900/40 transition-colors">
+                      <td className="py-3.5 px-4 font-mono font-bold text-cyan-400">
+                        <div className="flex items-center gap-1.5">
+                          <span>#{ordem.numeroOs}</span>
+                          {ordem.isDemo && (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                              DEMO
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-4 text-white font-bold">
+                        {ordem.clienteNome}
+                        <div className="text-[10px] text-slate-500 font-normal">{ordem.clienteWhatsapp}</div>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span className="text-slate-200">{ordem.aparelhoMarca} {ordem.aparelhoModelo}</span>
+                        <div className="text-[10px] text-slate-500 font-mono">IMEI: {ordem.aparelhoImei || 'Não inf.'}</div>
+                      </td>
+                      <td className="py-3.5 px-4 font-mono">
+                        {ordem.senhaTipo === 'padrao_pontos' ? (
+                          <span className="px-2 py-0.5 rounded bg-cyan-950/80 text-cyan-300 border border-cyan-500/30 text-[10px]">
+                            Padrão 3x3 Salvo
+                          </span>
+                        ) : (
+                          <span className="text-slate-400 text-[10px]">PIN: {ordem.senhaValor}</span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        {getStatusBadge(ordem.status)}
+                      </td>
+                      <td className="py-3.5 px-4 font-mono text-slate-200 font-bold">
+                        R$ {((ordem.valorTotal || 0) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="py-3.5 px-4 text-right">
+                        <NavLink
+                          to={`/system/os/${ordem.id}`}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-cyan-500 hover:text-black text-cyan-300 font-bold text-[11px] transition-all"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>Detalhes</span>
+                        </NavLink>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

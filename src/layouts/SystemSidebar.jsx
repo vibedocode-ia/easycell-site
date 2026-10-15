@@ -73,7 +73,7 @@ export default function SystemSidebar({ isOpen, onClose }) {
 
   const sidebarContent = (
     <div className="flex flex-col justify-between h-full min-h-full">
-      <div className="overflow-y-auto flex-1">
+      <div className="overflow-y-auto no-scrollbar flex-1">
         {/* Brand Header */}
         <div className="h-16 md:h-20 flex items-center justify-between px-6 border-b border-slate-800/80 sticky top-0 bg-[#050914] z-10">
           <NavLink to={isSuperadmin ? "/admin/saas" : "/system"} className="flex items-center space-x-3 group">

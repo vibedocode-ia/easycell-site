@@ -1,3 +1,8 @@
+### V1.03.07 (2026-10-15) - Scrollbars cyberpunk estilizadas, cards 100% clicáveis, Kanban touch-first mobile e dashboard compacto
+- **Release:** Scrollbars cyberpunk estilizadas, cards 100% clicáveis, Kanban touch-first mobile e dashboard compacto
+
+---
+
 ### V1.03.06 (2026-10-14) - Otimização mobile total do Super Admin SaaS e Landing Page
 - **Release:** Otimização mobile total do Super Admin SaaS e Landing Page
 
